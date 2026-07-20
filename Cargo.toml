@@ -1,0 +1,25 @@
+[package]
+name = "harada"
+version = "1.0.0-rc1"
+edition = "2021"
+description = "A Dev-First Execution OS that turns goals into 1x8x8 grids of executable tasks."
+repository = "https://github.com/example/harada"
+license = "MIT OR Apache-2.0"
+keywords = ["cli", "productivity", "ai", "project-management"]
+categories = ["command-line-utilities", "development-tools"]
+readme = "README.md"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ratatui = "0.29"
+crossterm = "0.28"
+dirs = "6"
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+ureq = { version = "3.3.0", features = ["json"] }
+
+[dev-dependencies]
+assert_cmd = "2.2.2"
+predicates = "3.1.4"
