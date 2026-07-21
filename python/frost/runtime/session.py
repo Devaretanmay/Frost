@@ -7,7 +7,7 @@ import time
 import uuid
 from typing import Any, Callable, Optional
 
-from frost.backends.docker import DockerBackend
+from frost.backends import get_backend, DockerBackend
 from frost.runtime.history import WorkflowHistory, Attempt
 from frost._core import LoopEngine
 
@@ -48,12 +48,9 @@ class Session:
         self._reused = False
         self._reuse_entry: Optional[_reuse.CacheEntry] = None
         self._entered = False
-        resolved_image = image or os.environ.get("FROST_IMAGE", "python:3.12")
         resolved_workdir = workdir or os.environ.get("FROST_WORKDIR", "")
-        self._backend = backend or DockerBackend(
-            image=resolved_image,
-            resource_args=[],
-            network_args=[],
+        self._backend = backend or get_backend(
+            image=image,
             timeout=timeout,
             workdir=resolved_workdir,
         )
@@ -93,12 +90,15 @@ class Session:
             self.history.status = "failed"
             
         # Store artifacts locally
-        base = os.path.expanduser("~/.frost/sessions")
-        os.makedirs(base, exist_ok=True)
-        path = os.path.join(base, f"{self.session_id}.json")
-        with open(path, "w") as fh:
-            json.dump(self.history.to_dict(), fh, indent=2)
-        self.history.artifacts["stored_at"] = path
+        try:
+            base = os.path.expanduser("~/.frost/sessions")
+            os.makedirs(base, exist_ok=True)
+            path = os.path.join(base, f"{self.session_id}.json")
+            with open(path, "w") as fh:
+                json.dump(self.history.to_dict(), fh, indent=2)
+            self.history.artifacts["stored_at"] = path
+        except Exception:
+            pass
             
         return self.history
 

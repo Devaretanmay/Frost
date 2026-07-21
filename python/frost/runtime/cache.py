@@ -71,10 +71,13 @@ def lookup(input_hash: str) -> Optional[CacheEntry]:
 
 
 def store(entry: CacheEntry) -> None:
-    """Persist a cache entry."""
-    path = _cache_path(entry.input_hash)
-    entry.timestamp = time.time()
-    path.write_text(json.dumps(asdict(entry), indent=2, ensure_ascii=False))
+    """Store a execution result in the cache."""
+    try:
+        path = _cache_path(entry.input_hash)
+        entry.timestamp = time.time()
+        path.write_text(json.dumps(asdict(entry), indent=2, ensure_ascii=False))
+    except Exception:
+        pass
 
 
 def invalidate(input_hash: str) -> None:

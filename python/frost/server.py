@@ -36,6 +36,7 @@ def create_server() -> Any:
         constraints: list[str] | None = None,
         timeout: int = 3600,
         image: str = "",
+        workdir: str = "",
         cache_key: str = "",
     ) -> str:
         """Execute an engineering task with FROST optimization.
@@ -52,6 +53,7 @@ def create_server() -> Any:
             timeout: Maximum execution time in seconds (default: 3600).
             image: Docker image for execution isolation
                    (default: python:3.12-slim).
+            workdir: Host directory to mount as workspace into container.
             cache_key: Optional key for result caching across sessions.
 
         Returns:
@@ -63,6 +65,7 @@ def create_server() -> Any:
             constraints=constraints or [],
             timeout=timeout,
             image=image,
+            workdir=workdir,
             cache_key=cache_key,
         )
         return json.dumps({

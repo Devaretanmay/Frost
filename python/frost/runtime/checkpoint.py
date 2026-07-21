@@ -58,6 +58,21 @@ def create(container_id: str, session_id: str, attempt: int,
     ckpt_id = uuid.uuid4().hex[:12]
     tag = _tag(session_id, ckpt_id)
 
+    if container_id == "native" or container_id.startswith("native"):
+        meta = CheckpointMeta(
+            checkpoint_id=ckpt_id,
+            session_id=session_id,
+            timestamp=time.time(),
+            attempt=attempt,
+            image_tag="native",
+            container_id=container_id,
+            token_estimate=token_estimate,
+            loop_hits=loop_hits,
+            labels=labels or {},
+        )
+        _save_meta(meta)
+        return meta
+
     proc = subprocess.run(
         ["docker", "commit", container_id, tag],
         capture_output=True, text=True, timeout=30,
@@ -132,19 +147,22 @@ def _meta_path(session_id: str, checkpoint_id: str) -> Path:
 
 
 def _save_meta(meta: CheckpointMeta) -> None:
-    path = _meta_path(meta.session_id, meta.checkpoint_id)
-    path.write_text(json.dumps({
-        "version": meta.version,
-        "checkpoint_id": meta.checkpoint_id,
-        "session_id": meta.session_id,
-        "timestamp": meta.timestamp,
-        "attempt": meta.attempt,
-        "image_tag": meta.image_tag,
-        "container_id": meta.container_id,
-        "token_estimate": meta.token_estimate,
-        "loop_hits": meta.loop_hits,
-        "labels": meta.labels,
-    }, indent=2))
+    try:
+        path = _meta_path(meta.session_id, meta.checkpoint_id)
+        path.write_text(json.dumps({
+            "version": meta.version,
+            "checkpoint_id": meta.checkpoint_id,
+            "session_id": meta.session_id,
+            "timestamp": meta.timestamp,
+            "attempt": meta.attempt,
+            "image_tag": meta.image_tag,
+            "container_id": meta.container_id,
+            "token_estimate": meta.token_estimate,
+            "loop_hits": meta.loop_hits,
+            "labels": meta.labels,
+        }, indent=2))
+    except Exception:
+        pass
 
 
 def load_meta(checkpoint_id: str) -> Optional[CheckpointMeta]:
