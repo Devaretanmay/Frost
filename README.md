@@ -1,78 +1,117 @@
-# Harada
+# FROST
 
-![Harada Progress](https://img.shields.io/badge/Harada_Progress-100%25-brightgreen.svg)
-![Crates.io](https://img.shields.io/crates/v/harada.svg)
-![License](https://img.shields.io/crates/l/harada.svg)
+**FROST solves engineering problems for AI agents. Everything else is an implementation detail.**
 
-Harada is an opinionated **Dev-First Execution OS** that turns complex goals into executable 1x8x8 grids of tasks, auto-detects bottlenecks via Git activity, and seamlessly delegates work between humans and AI agents.
+```python
+from frost import frost
 
-Built around a single immovable invariant:
-**Every goal must decompose into exactly 8 capabilities. Every capability must decompose into exactly 8 tasks. Exactly 64 tasks. No exceptions.**
-
-## Zero-to-One Onboarding
-
-### 1. Install Harada
-```bash
-# Via Cargo
-cargo install harada
-
-# Via Curl Installer
-curl -sSL https://raw.githubusercontent.com/example/harada/main/install.sh | bash
-
-# Via Homebrew
-brew install example/tap/harada
+result = frost("Fix the failing tests in this repository")
+result = frost("Refactor the auth module",
+               constraints=["Do not modify public APIs"])
 ```
-
-### 2. Compile Your First Goal
-Give Harada a goal. It will generate a prompt for you to paste into Claude/ChatGPT.
-```bash
-harada compile "Build a Rust distributed cache"
-```
-*Paste the resulting JSON from the AI into `response.json`*
-
-```bash
-harada compile --import response.json
-```
-
-### 3. Setup CI & Hooks
-Initialize Harada for your Git repository:
-```bash
-harada init --pre-commit --github-action
-```
-
-### 4. Let the Execution OS Guide You
-Harada's `work` command detects the critical path and tells you exactly what to do next based on branch activity and dependencies:
-```bash
-harada work
-```
-
-### 5. Assign to AI
-Want an AI agent to do a task?
-```bash
-# Auto-suggest AI tools for easy tasks
-harada assign --suggest
-
-# Generate a prompt specifically for the assigned AI tool
-harada handoff C1T2
-```
-
-### 6. Auto-Complete via Git
-Work on the task on a branch, then link it:
-```bash
-harada link C1T2 my-feature-branch
-```
-When `my-feature-branch` is merged into `main`, Harada will instantly mark the task as completed and unblock downstream dependencies automatically:
-```bash
-harada sync
-```
-
-## Advanced Features
-- **Velocity Dashboard:** `harada stats` provides ETAs, actor breakdowns, and TUI charts.
-- **Dependency Graphs:** `harada work --graph` outputs Graphviz DOT logic.
-- **CI Notifiers:** Add `--notify <slack_url>` to ping your team on new bottlenecks.
-
-## State & Storage
-All data is stored locally and securely in `.harada/state.json` inside your current working directory. There is no cloud sync, no accounts, and no data lock-in.
 
 ---
-*Built with Rust. Driven by Constraints.*
+
+## Why
+
+AI coding agents are good at writing code. They're bad at retrying when things fail, managing context when output is verbose, and avoiding loops when they get stuck. FROST handles all of that invisibly.
+
+| Without FROST | With FROST |
+|--------------|------------|
+| Agent runs a command | Agent delegates an engineering problem |
+| Fails → retries manually → burns context | FROST retries internally with loop detection |
+| Same task runs again next session | FROST caches results by content hash |
+| Long task fails at 95% | FROST checkpoints and resumes |
+| Verbose output fills context window | FROST compresses output automatically |
+
+---
+
+## Install
+
+```bash
+pip install frost
+```
+
+Requires Python 3.10+ and Docker (for execution isolation).
+
+See **[IMAGES.md](IMAGES.md)** for Docker image recommendations by language.
+
+---
+
+## Usage
+
+### For agents
+
+```python
+from frost import frost
+
+# Delegate an engineering problem
+result = frost("Fix the failing tests in tests/")
+print(result.status, result.output)
+
+# Cache results by content hash
+result = frost("Update all dependencies to their latest versions", cache_key="dep-upgrade")
+
+# Enforce constraints
+result = frost("Refactor the payment module",
+               constraints=["Must use the existing database schema",
+                            "Must pass all existing tests"])
+```
+
+### For developers
+
+```bash
+frost serve                    # Start the MCP server
+frost run exec 'pytest tests/' # Debug: run a command in a container
+```
+
+Make the ``frost`` tool available to your agent via MCP:
+
+```bash
+frost serve                    # Start the MCP server (stdio)
+frost serve --sse --port 8080  # Or SSE for HTTP transport
+```
+
+The agent gets one tool: ``frost`` — it delegates engineering problems, FROST handles execution.
+
+---
+
+## How It Works
+
+FROST wraps each execution with hidden infrastructure:
+
+- **Session management** — isolated Docker environment per task
+- **Retry with loop detection** — stops infinite retry loops
+- **Checkpointing** — saves state so failures don't restart from zero
+- **Compression** — reduces output size by 50–94%
+- **Caching** — content-addressed cache eliminates duplicate work
+- **Branching and parallel exploration** — explores multiple solutions (planned)
+
+None of these are user-facing. The agent delegates a problem. FROST returns the best result.
+
+---
+
+## Architecture
+
+```
+Agent
+  │
+  └── frost("Fix the failing tests")
+        │
+        ├── Session (isolated Docker environment)
+        ├── Loop detection (Rust)
+        ├── Compression engine (Rust)
+        ├── Checkpointing (Docker commit)
+        ├── Cache (content-addressed, ~/.frost/cache)
+        └── ... (more hidden infrastructure)
+```
+
+---
+
+## Status
+
+Early alpha. Retry, caching, checkpointing, and output compression work but need real-world validation with production agent workloads.
+
+## License
+
+Apache 2.0

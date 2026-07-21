@@ -1,1 +1,19 @@
-/target
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.venv/
+
+# FROST local state
+.frost/
