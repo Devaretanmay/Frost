@@ -71,44 +71,141 @@ Repository:          [ok] Ready
 
 ---
 
-## Architectural Invariants & Laws
+## System Architecture & Execution Flow
+
+### 1. Complete Task Execution Lifecycle
 
 ```text
-Upgrade Core Modules
+                                FROST
+          Uncertainty-Aware Repository Evolution Runtime
+                                |
+                                |
+                         ---------------------------------
+                         |                               |
+                        SDK                             MCP
+                         |                               |
+                  frost.run()                        frost tool
+                  frost.resume()                         |
+                  frost.inspect()                        |
+                         |                               |
+                         ---------------------------------
+                                        |
+                                        |
+                                Task Submission
+                                        |
+                                        |
+                  "Modernize this repository to 2026 standards"
+                                        |
+                                        |
+                                  Orchestrator
+                                        |
+                                        |
+                          Is this a difficult engineering task?
+                                        |
+                       -----------------------------------------
+                       |                                       |
+                      NO                                      YES
+                       |                                       |
+                 Linear Execution                       Linear Execution
+                  (20-50 ms)                                   |
+                       |                                       |
+                    SUCCESS                                    |
+                                                               |
+                                                      Uncertainty Detection
+                                                               |
+                                               Is this an engineering uncertainty point?
+                                                               |
+                                           ----------------------------------------
+                                           |                                      |
+                                          NO                                     YES
+                                           |                                      |
+                                      Retry / Fix                          Spawn Micro Branches
+                                           |                                      |
+                                           |                        -----------------------------------
+                                           |                        |                |                |
+                                           |                     Branch A         Branch B         Branch C
+                                           |                        |                |                |
+                                           |                        |                |                |
+                                           |                  Execute Task      Execute Task      Execute Task
+                                           |                        |                |                |
+                                           |                        -----------------------------------
+                                           |                                        |
+                                           |                                Internal Loop Detection
+                                           |                                        |
+                                           |                                Kill Losing Branches
+                                           |                                        |
+                                           |                                 Select Winner Branch
+                                           |                                        |
+                                           ------------------------------------------
+                                                               |
+                                                      Merge Winning Changes
+                                                               |
+                                                      Resume Linear Execution
+                                                               |
+                                                      Validate Repository State
+                                                               |
+                                               -----------------------------------
+                                               |                                 |
+                                            FAILED                            SUCCESS
+                                               |                                 |
+                                       Recover / Retry                   Repository GREEN
+                                               |                                 |
+                                               -----------------------------------
+                                                               |
+                                                         Final Result
+                                                               |
+                                            Python 3.14 + Tests Passing + Docs Updated
+```
 
-        ↓
+### 2. Runtime Component Stack
 
-Linear Execution (PASS)
+```text
+                                FROST RUNTIME
+                                       |
+                                       |
+                                Orchestrator
+                                       |
+               ---------------------------------------------------
+               |                |               |               |
+        Compression Engine   Memory Engine   Loop Engine    Branch Engine
+               |                |               |               |
+               ---------------------------------------------------
+                                       |
+                                Repository State
+                                       |
+               ---------------------------------------------------
+               |                |               |               |
+             Git             Worktrees        Tests           Validation
+               |                |               |               |
+               ---------------------------------------------------
+                                       |
+                                 Execution Layer
+                                       |
+                       -------------------------------------
+                       |                                   |
+                    Native                             Docker
+                    Backend                             Backend
+```
 
-        ↓
+### 3. End-User Integration Journey
 
-Breaking API / Migration Error (FAIL)
-
-        ↓
-
-UNCERTAINTY POINT DETECTED
-
-        ↓
-
-Spawn 3 Isolated Micro-Branches
-├── Branch A: Compatibility Layer (worktree-a)
-├── Branch B: Public API Refactor (worktree-b)
-└── Branch C: Pin Dependency Version (worktree-c)
-
-        ↓
-
-Internal Loop Detection & Evaluation
-├── Branch B: Oscillation Loop (KILL)
-├── Branch C: Regresses 12 Tests (KILL)
-└── Branch A: 100% Tests Pass (WINNER)
-
-        ↓
-
-Immediate Patch Merge (git apply --3way)
-
-        ↓
-
-Resume Linear Execution
+```text
+                    pip install frost-ai
+                              |
+                         frost init / doctor
+                              |
+                     Configure MCP Client
+                              |
+                      Claude Code / Gemini
+                      Cursor / OpenCode etc.
+                              |
+                    "Modernize this repository"
+                              |
+                             FROST
+                              |
+                     Repository GREEN
+                              |
+                        Continue Working
 ```
 
 ### The 7 Invariants
