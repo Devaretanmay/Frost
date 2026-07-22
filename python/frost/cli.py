@@ -5,11 +5,11 @@ from __future__ import annotations
 import argparse
 import sys
 from frost import frost
+from frost.server import run_server
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start the FROST MCP server."""
-    from frost.server import run_server
     run_server(sse=args.sse, host=args.host, port=args.port)
     return 0
 

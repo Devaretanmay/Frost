@@ -9,7 +9,7 @@ from typing import Any, Callable, Optional
 
 from frost.backends import get_backend, DockerBackend
 from frost.runtime.history import WorkflowHistory, Attempt
-from frost._core import LoopEngine
+from frost._core import LoopEngine, route_and_compress
 
 from . import checkpoint as _checkpoint
 from . import cache as _reuse
@@ -150,7 +150,6 @@ class Session:
                 cmd_repr = current_target
                 
             if self.compression_enabled:
-                from frost._core import route_and_compress
                 out = route_and_compress(out) if out else out
                 err = route_and_compress(err) if err else err
 

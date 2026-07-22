@@ -11,6 +11,7 @@ structurally findable across machines and sessions.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import os
 import time
@@ -132,7 +133,6 @@ def derive_hash(
     """
     h = hashlib.sha256()
     if callable(target):
-        import inspect
         try:
             src = inspect.getsource(target)
         except (OSError, TypeError):

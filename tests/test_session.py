@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import tempfile
 import time
 from pathlib import Path
@@ -11,6 +12,7 @@ from pathlib import Path
 from frost.runtime.session import session, Session
 from frost.runtime import checkpoint as _checkpoint
 from frost.runtime import cache as _reuse
+from frost.runtime.checkpoint import _save_meta
 
 
 # ============================================================================
@@ -70,7 +72,6 @@ class TestReuseCache:
 
     def teardown_method(self):
         _reuse.CACHE_DIR = self._orig_dir
-        import shutil
         shutil.rmtree(self._tmp, ignore_errors=True)
 
     def test_store_and_lookup(self):
@@ -177,7 +178,6 @@ class TestSessionReuse:
 
     def teardown_method(self):
         _reuse.CACHE_DIR = self._orig_dir
-        import shutil
         shutil.rmtree(self._tmp, ignore_errors=True)
 
     def test_session_has_input_hash(self):
@@ -230,7 +230,6 @@ class TestCheckpointVersioning:
 
     def teardown_method(self):
         _checkpoint.CHECKPOINT_DIR = self._orig_dir
-        import shutil
         shutil.rmtree(self._tmp, ignore_errors=True)
 
     def test_checkpoint_version_constant(self):
@@ -285,8 +284,6 @@ class TestCheckpointVersioning:
         assert meta.token_estimate == 500
 
     def test_deserialize_v1_persisted_and_loaded(self):
-        from frost.runtime.checkpoint import _save_meta
-
         meta = _checkpoint.CheckpointMeta(
             checkpoint_id="roundtrip",
             session_id="sess-rt",
@@ -319,8 +316,6 @@ class TestCheckpointVersioning:
         assert not path.exists()
 
     def test_best_v0_and_v1_mixed(self):
-        from frost.runtime.checkpoint import _save_meta
-
         v0_meta = _checkpoint.CheckpointMeta(
             checkpoint_id="v0-ckpt", session_id="mixed",
             timestamp=100.0, attempt=1, image_tag="img:v0",

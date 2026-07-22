@@ -1,5 +1,6 @@
 """Docker backend for FROST execution isolation."""
 
+import inspect
 import json
 import os
 import shutil
@@ -72,7 +73,6 @@ class DockerBackend:
     def execute_callable(self, fn: Callable[[], Any]) -> Tuple[int, str, str]:
         if not self._container:
             raise RuntimeError("Container not running")
-        import inspect
         mod = inspect.getmodule(fn)
         if mod is None:
             mod = sys.modules.get(getattr(fn, "__module__", ""))

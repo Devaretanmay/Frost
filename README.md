@@ -1,4 +1,4 @@
-![FROST Logo](docs/assets/frost_logo.jpg)
+![FROST Logo](docs/assets/frost_logo.png)
 
 # FROST
 

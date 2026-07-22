@@ -18,12 +18,14 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import tempfile
 import time
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+from frost._core import route_and_compress
 from frost.v2.branch_loop import BranchLoopDetector, AttemptSignature, LoopVerdict, hash_output
 
 
@@ -102,8 +104,6 @@ class MicroBranch:
         """
         self.result.status = "running"
         start_time = time.time()
-
-        from frost._core import route_and_compress
 
         for attempt_idx in range(1, self.budget.max_attempts + 1):
             # Budget check: time
@@ -230,8 +230,6 @@ class MicroBranch:
 
     def _create_worktree(self) -> str:
         """Create isolated working directory for this micro-branch."""
-        import tempfile
-
         worktree_base = os.path.join(tempfile.gettempdir(), "frost_branches")
         os.makedirs(worktree_base, exist_ok=True)
 

@@ -25,6 +25,7 @@ from frost.runtime.session import Session
 from frost.v2.orchestrator import Orchestrator, ExecutionReport
 from frost.v2.micro_branch import BranchBudget
 from frost.v2.memory import EngineeringMemory
+from frost.v2.validator import _detect_test_commands, _detect_build_commands
 
 
 _LAST_SESSION: Optional[Session] = None
@@ -181,7 +182,6 @@ def _resolve_command(task: str, workdir: str) -> str:
             return cmd[idx:]
 
     # Fallback: detect project test/build commands
-    from frost.v2.validator import _detect_test_commands, _detect_build_commands
     test_cmds = _detect_test_commands(workdir)
     if test_cmds:
         return test_cmds[0]

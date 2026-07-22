@@ -36,6 +36,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
+from frost._core import route_and_compress
 from frost.v2.uncertainty import detect_uncertainty, UncertaintySignal
 from frost.v2.micro_branch import MicroBranch, BranchBudget, BranchResult, compressed_summary
 from frost.v2.memory import EngineeringMemory, StrategyOutcome
@@ -97,8 +98,6 @@ class Orchestrator:
         """Execute an engineering task with the V2 linear-first model."""
         start = time.time()
         self._report.mode = "linear"
-
-        from frost._core import route_and_compress
 
         attempt = 0
 

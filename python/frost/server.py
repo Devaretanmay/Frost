@@ -9,18 +9,22 @@ Output:
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from typing import Any
 
 from frost.core import frost as _frost
 
+try:
+    from mcp.server.fastmcp import FastMCP
+except ImportError:
+    FastMCP = None
+
 
 def create_server() -> Any:
     """Create and return the FROST FastMCP server instance with ONE single tool."""
-    try:
-        from mcp.server.fastmcp import FastMCP
-    except ImportError:
+    if FastMCP is None:
         print("MCP SDK required: pip install mcp", file=sys.stderr)
         sys.exit(1)
 
@@ -105,7 +109,6 @@ def run_server(*, sse: bool = False, host: str = "0.0.0.0", port: int = 8080) ->
 
 
 def main() -> int:
-    import argparse
     parser = argparse.ArgumentParser(description="FROST MCP Server")
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
     parser.add_argument("--host", default="0.0.0.0", help="Host address for SSE")

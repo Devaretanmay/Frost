@@ -1,5 +1,6 @@
 """Native execution backend for FROST (Level 0 - Zero Overhead)."""
 
+import io
 import os
 import subprocess
 import sys
@@ -67,7 +68,6 @@ class NativeBackend:
 
     def execute_callable(self, target: Callable[[], Any]) -> Tuple[int, str, str]:
         """Execute a Python callable in-process."""
-        import io
         buf_out = io.StringIO()
         buf_err = io.StringIO()
         old_out, old_err = sys.stdout, sys.stderr
