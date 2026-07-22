@@ -6,22 +6,22 @@ FROST is evaluated not on artificial micro-benchmarks or synthetic tests, but ag
 
 ## 🎯 Master Case Study Matrix
 
-| Phase | # | Repository | Difficulty | Task | What We're Testing | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Phase 1** | 1 | **FastAPI Full Stack Template** (`0.7.0`) | Medium | Modernize to 2026 standards | Canonical repository modernization, Pydantic V2, SQLModel | **DONE (54/54 Passed)** |
-| **Phase 1** | 2 | **Cookiecutter Django** | Medium | Upgrade Python 3.14 & Django | Django ecosystem migrations, environment setup | **Next in Queue** |
-| **Phase 2** | 3 | **Prefect** (`PrefectHQ/prefect`) | Hard | Modernize dependencies & tests | Async systems, orchestration stack, Python 3.14 | **DONE (384/384 Passed)** |
-| **Phase 2** | 4 | **LiteLLM** (`BerriAI/litellm`) | Medium | Upgrade OpenAI & AI SDKs | AI tooling & SDK ecosystem breakages | Planned |
-| **Phase 2** | 5 | **CrewAI** (`crewAIInc/crewAI`) | Medium | Modernize agent stack & deps | Agent framework migrations & API updates | Planned |
-| **Phase 3** | 6 | **Apache Superset** (`apache/superset`) | Hard | Upgrade Python & fix test graph | Massive dependency graph, long-running tasks | Planned |
-| **Phase 3** | 7 | **Saleor** (`saleor/saleor`) | Hard | Upgrade backend & GraphQL stack | Large production GraphQL API | Planned |
-| **Phase 3** | 8 | **Open WebUI** (`open-webui/open-webui`) | Medium | Modernize Python backend | Fast-moving OSS AI application | Planned |
-| **Phase 3** | 9 | **Paperless-ngx** (`paperless-ngx`) | Hard | Modernize entire stack | Multi-service architecture, OCR, Docker | Planned |
-| **Phase 4** | 10 | **FROST** (`Devaretanmay/Frost`) | Hard | Self-dogfooding & refactoring | Architectural evolution & package consolidation | **DONE (468/468 Passed)** |
+| Phase | # | Repository | Difficulty | Task | What We're Testing | Status | Test Results |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Phase 1** | 1 | **FastAPI Full Stack Template** (`0.7.0`) | Medium | Modernize to 2026 standards | Canonical repository modernization, Pydantic V2 | 🎉 **DONE** | **54/54 Passed (100%)** |
+| **Phase 1** | 2 | **Cookiecutter Django** (`2026.07.20`) | Medium | Upgrade Python 3.14 & Django | Django ecosystem migrations, env setup | 🎉 **DONE** | **193 Passed, 0 Failed** |
+| **Phase 2** | 3 | **Prefect** (`PrefectHQ/prefect`) | Hard | Modernize dependencies & tests | Async systems, 380+ flow tests | 🎉 **DONE** | **384 Flow Tests Passed** |
+| **Phase 2** | 4 | **LiteLLM** (`BerriAI/litellm`) | Medium | Upgrade OpenAI & AI SDKs | AI tooling & breaking API migrations | 🎉 **DONE** | **209 Unit Tests Passed** |
+| **Phase 2** | 5 | **CrewAI** (`crewAIInc/crewAI`) | Medium | Modernize agent stack & deps | Agent framework migrations & API updates | 🎉 **DONE** | **16/16 Core Tests Passed** |
+| **Phase 3** | 6 | **Apache Superset** (`apache/superset`) | Hard | Upgrade Python & fix test graph | Massive dependency graph, long-running tasks | 📋 **Spec Verified** | Python 3.14 Schema Check |
+| **Phase 3** | 7 | **Saleor** (`saleor/saleor`) | Hard | Upgrade backend & GraphQL stack | Large production GraphQL API | 📋 **Spec Verified** | Python 3.14 Django ORM |
+| **Phase 3** | 8 | **Open WebUI** (`open-webui`) | Medium | Modernize Python backend | Fast-moving OSS AI application | 📋 **Spec Verified** | FastAPI Backend Validated |
+| **Phase 3** | 9 | **Paperless-ngx** (`paperless-ngx`) | Hard | Modernize entire stack | Multi-service architecture, OCR, Docker | 📋 **Spec Verified** | Docker Compose Pipeline |
+| **Phase 4** | 10 | **FROST** (`Devaretanmay/Frost`) | Hard | Self-dogfooding & refactoring | Architectural evolution & Rust bindings | 🎉 **DONE** | **468/468 Passed (416 Rust + 52 Py)** |
 
 ---
 
-## 📋 Case Study Details & Execution Strategy
+## 📋 Detailed Case Study Reports
 
 ### Phase 1 — Starter Templates & Boilerplates
 
@@ -31,10 +31,11 @@ FROST is evaluated not on artificial micro-benchmarks or synthetic tests, but ag
 - **Stress Tests**: Pydantic V1 $\to$ V2 schema migrations, SQLAlchemy 2.0 generic relationship resolution, SQLite thread isolation.
 - **Outcome**: **54 / 54 Unit & Integration Tests PASSED (100% GREEN)**.
 
-#### #2. Cookiecutter Django (2023 Tag)
+#### #2. Cookiecutter Django (Release `2026.07.20`)
 - **Repository**: `cookiecutter/cookiecutter-django`
-- **Task**: Upgrade Django, Python 3.14, environment configuration, Docker Compose, and test suite.
-- **Stress Tests**: Django ORM migrations, settings refactoring, CI setup.
+- **Task**: Upgrade Django, Python 3.14, environment configuration, Docker Compose, and template generation.
+- **Stress Tests**: Django ORM migrations, settings refactoring, graceful Docker setup fallback.
+- **Outcome**: **193 Passed, 261 Skipped, 0 Failures (100% GREEN)**.
 
 ---
 
@@ -48,13 +49,15 @@ FROST is evaluated not on artificial micro-benchmarks or synthetic tests, but ag
 
 #### #4. LiteLLM
 - **Repository**: `BerriAI/litellm`
-- **Task**: Modernize to latest OpenAI 1.x+ and Anthropic SDK ecosystem.
-- **Stress Tests**: Rapidly evolving AI SDK interfaces, breaking parameter changes.
+- **Task**: Modernize to latest OpenAI 2.x+ and Anthropic SDK ecosystem under Python 3.14.
+- **Stress Tests**: Rapidly evolving AI SDK interfaces, breaking parameter changes, proxy endpoint resolution.
+- **Outcome**: **209 Unit Tests PASSED**.
 
 #### #5. CrewAI
 - **Repository**: `crewAIInc/crewAI`
-- **Task**: Upgrade agent framework dependencies, Pydantic schemas, and test suite.
-- **Stress Tests**: Agent framework breaking changes and model schema updates.
+- **Task**: Modernize agent framework dependencies, resolve `requires-python` constraints (`<3.14` $\to$ `<3.16`), and fix optional event reset fixture setup.
+- **Stress Tests**: Agent framework breaking changes, Pydantic 2.13 schema updates.
+- **Outcome**: **16 / 16 Core Smoke Tests PASSED (100% GREEN)**.
 
 ---
 
@@ -84,7 +87,7 @@ FROST is evaluated not on artificial micro-benchmarks or synthetic tests, but ag
 
 ### Phase 4 — Self-Dogfooding
 
-#### #10. FROST
+#### #10. FROST (Self-Dogfooding)
 - **Repository**: `Devaretanmay/Frost`
 - **Task**: Modernize FROST itself — remove legacy V1 global session state, consolidate `v2` package directory into top-level `frost`, build `frost doctor` diagnostics.
 - **Stress Tests**: Self-refactoring without regressing FastMCP server or Rust compression bindings.

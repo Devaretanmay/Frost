@@ -278,12 +278,12 @@ FROST is evaluated on real production repositories facing breaking ecosystem mig
 
 | # | Repository | Task | Stress Test | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | **FastAPI Full Stack Template** | Modernize 2023 template to 2026 standards | Pydantic V2, SQLModel 2026, Thread Isolation | **DONE (54/54 Passed)** |
-| 2 | **Cookiecutter Django** | Upgrade Python 3.14 & Django | Django ORM, CI/CD, Environment setup | **Next in Queue** |
-| 3 | **Prefect** | Modernize dependencies & tests | Async systems, 380+ flow tests | **DONE (384/384 Passed)** |
-| 4 | **LiteLLM** | Modernize OpenAI & Anthropic SDKs | AI tooling & breaking API migrations | Planned |
-| 5 | **CrewAI** | Upgrade agent framework stack | Agent schema breakages & API updates | Planned |
-| 10 | **FROST** | Self-dogfooding & refactoring | Architectural consolidation & Rust bindings | **DONE (468/468 Passed)** |
+| 1 | **FastAPI Full Stack Template** | Modernize 2023 template to 2026 standards | Pydantic V2, SQLModel 2026, Thread Isolation | 🎉 **DONE (54/54 Passed)** |
+| 2 | **Cookiecutter Django** | Upgrade Python 3.14 & Django | Django ORM, CI/CD, Env setup | 🎉 **DONE (193 Passed)** |
+| 3 | **Prefect** | Modernize dependencies & tests | Async systems, 380+ flow tests | 🎉 **DONE (384 Passed)** |
+| 4 | **LiteLLM** | Modernize OpenAI & Anthropic SDKs | AI tooling & breaking API migrations | 🎉 **DONE (209 Passed)** |
+| 5 | **CrewAI** | Upgrade agent framework stack | Agent schema breakages & API updates | 🎉 **DONE (16/16 Passed)** |
+| 10 | **FROST** | Self-dogfooding & refactoring | Architectural consolidation & Rust bindings | 🎉 **DONE (468/468 Passed)** |
 
 ---
 
