@@ -17,3 +17,4 @@ build/
 
 # FROST local state
 .frost/
+.frost_cache.json

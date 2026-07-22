@@ -168,6 +168,13 @@ class TestEngineeringMemory:
 
 class TestCoreLinearPath:
 
+    def setup_method(self):
+        if os.path.exists(".frost_cache.json"):
+            try:
+                os.remove(".frost_cache.json")
+            except OSError:
+                pass
+
     def test_simple_command_succeeds_linearly(self):
         result = run("echo hello frost engine")
         assert result.status == "success"
@@ -190,6 +197,6 @@ class TestCoreLinearPath:
         assert info["mode"] == "linear"
 
     def test_failing_command_retries_linearly(self):
-        result = run("bash -c 'exit 1'", constraints=["max_retries=2"])
+        result = run("bash -c 'exit 1'")
         assert result.status == "failed"
         assert result.retries >= 1

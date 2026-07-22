@@ -31,34 +31,22 @@ def create_server() -> Any:
     mcp = FastMCP("FROST")
 
     @mcp.tool()
-    def frost(
+    def run(
         task: str,
-        constraints: list[str] | None = None,
-        timeout: int = 3600,
-        image: str = "",
         workdir: str = "",
-        cache_key: str = "",
     ) -> str:
-        """Execute an engineering problem. FROST decides all machinery internally.
+        """Execute an engineering problem. FROST decides all execution machinery internally.
 
         Args:
-            task: Engineering task or CLI command to execute.
-            constraints: Optional constraints.
-            timeout: Maximum execution time in seconds (default: 3600).
-            image: Docker image override if container isolation is required.
-            workdir: Working directory override.
-            cache_key: Optional deterministic key for result caching.
+            task: Engineering task or problem description in plain English or CLI command.
+            workdir: Optional working directory override.
 
         Returns:
-            JSON with execution outcome, summary, and next steps.
+            JSON with execution status, outcome summary, token reduction %, and next steps.
         """
         result = _frost(
             goal=task,
-            constraints=constraints or [],
-            timeout=timeout,
-            image=image,
             workdir=workdir,
-            cache_key=cache_key,
         )
 
         status_text = "completed successfully" if result.status in ("success", "cached") else "failed"

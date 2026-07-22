@@ -78,10 +78,11 @@ class Orchestrator:
         workdir: str,
         *,
         max_linear_retries: int = 3,
-        max_uncertainty_points: int = 5,
+        max_uncertainty_points: int = 3,
         branch_budget: Optional[BranchBudget] = None,
         memory: Optional[EngineeringMemory] = None,
         timeout: int = 3600,
+        image: str = "",
     ):
         self.task = task
         self.workdir = workdir
@@ -90,6 +91,7 @@ class Orchestrator:
         self.branch_budget = branch_budget or BranchBudget()
         self.memory = memory
         self.timeout = timeout
+        self.image = image
 
         self._previous_errors: list[str] = []
         self._report = ExecutionReport()
@@ -100,8 +102,9 @@ class Orchestrator:
         self._report.mode = "linear"
 
         attempt = 0
+        max_total_attempts = self.max_linear_retries
 
-        while attempt < self.max_linear_retries + self.max_uncertainty_points * 5:
+        while attempt < max_total_attempts:
             # Global timeout check
             if time.time() - start > self.timeout:
                 self._report.status = "failed"
@@ -317,7 +320,24 @@ class Orchestrator:
         return fixes[:4]  # max 4 micro-branches
 
     def _run_command(self, cmd: str) -> tuple[int, str, str]:
-        """Execute a command in the main workdir."""
+        """Execute a command in the main workdir (or inside Docker container if self.image set)."""
+        if self.image:
+            from frost.backends.docker import DockerBackend
+            backend = DockerBackend(
+                image=self.image,
+                resource_args=["--cpus=2", "--memory=2g"],
+                network_args=[],
+                timeout=min(300, self.timeout),
+                workdir=self.workdir,
+            )
+            try:
+                backend.start()
+                code, out, err = backend.execute_cli(cmd, cwd=None, env=None)
+                backend.stop()
+                return code, out, err
+            except Exception as e:
+                return 1, "", f"Docker execution error: {e}"
+
         try:
             proc = subprocess.run(
                 cmd,
