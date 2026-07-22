@@ -1,12 +1,9 @@
-"""FROST — engineering execution for AI agents.
+"""FROST — Uncertainty-Aware Engineering Execution Runtime.
 
-Three primitives:
-    frost.run("Fix failing tests")
+Three Primitives:
+    frost.run("pytest tests/")
     frost.resume()
     frost.inspect()
-
-V1: Linear execution with compression, loop detection, checkpointing.
-V2: Linear-first execution with micro-branching at uncertainty points.
 
 The 3 Laws:
     #1: Nothing reasons over raw artifacts.
@@ -21,10 +18,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from frost.v2.orchestrator import Orchestrator, ExecutionReport
-from frost.v2.micro_branch import BranchBudget
-from frost.v2.memory import EngineeringMemory
-from frost.v2.validator import _detect_test_commands, _detect_build_commands
+from frost.orchestrator import Orchestrator, ExecutionReport
+from frost.micro_branch import BranchBudget
+from frost.memory import EngineeringMemory
+from frost.validator import _detect_test_commands, _detect_build_commands
 
 
 _LAST_REPORT: Optional[ExecutionReport] = None
@@ -43,7 +40,6 @@ class FrostResult:
     retries: int = 0
     cached: bool = False
     attempts: list[dict] = field(default_factory=list)
-    # V2 fields
     mode: str = "linear"
     uncertainty_points: int = 0
     uncertainty_resolved: int = 0
@@ -65,8 +61,8 @@ def run(
 ) -> FrostResult:
     """Execute an engineering task.
 
-    Invariant #1: Linear execution is the default.
-    If linear execution hits uncertainty, V2 micro-branching activates.
+    Linear execution is the default. If linear execution hits uncertainty,
+    micro-branching activates to explore and resolve alternatives.
     """
     global _LAST_REPORT, _LAST_TASK, _MEMORY
 
@@ -91,7 +87,7 @@ def run(
     if _MEMORY is None:
         _MEMORY = EngineeringMemory(session_id=f"frost-{hash(goal) % 100000:05d}")
 
-    # V2 Orchestrator: linear-first with micro-branching at uncertainty
+    # Orchestrator: linear-first with micro-branching at uncertainty
     orchestrator = Orchestrator(
         task=goal,
         workdir=resolved_workdir,

@@ -1,7 +1,6 @@
 """Branch Loop Detector — rich internal loop detection for micro-branches.
 
-Much smarter than V1's external A-B-A-B detection. Operates inside
-each micro-branch to detect:
+Operates inside each micro-branch to detect:
 
 1. Code oscillation:     A → B → A → B
 2. No meaningful diff:   Repository state unchanged across attempts

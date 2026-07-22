@@ -1,4 +1,4 @@
-"""Orchestrator — the V2 execution loop.
+"""Orchestrator — the execution loop.
 
 Linear-first execution with micro-branching at uncertainty points.
 
@@ -16,7 +16,7 @@ Algorithm:
             merge(winner)              # Invariant #7
             continue
         else:
-            retry_linearly()           # V1 loop detection
+            retry_linearly()
 
 The 7 Invariants:
     1. Linear execution is the default.
@@ -37,9 +37,9 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from frost._core import route_and_compress
-from frost.v2.uncertainty import detect_uncertainty, UncertaintySignal
-from frost.v2.micro_branch import MicroBranch, BranchBudget, BranchResult, compressed_summary
-from frost.v2.memory import EngineeringMemory, StrategyOutcome
+from frost.uncertainty import detect_uncertainty, UncertaintySignal
+from frost.micro_branch import MicroBranch, BranchBudget, BranchResult, compressed_summary
+from frost.memory import EngineeringMemory, StrategyOutcome
 
 
 @dataclass
@@ -65,7 +65,7 @@ class ExecutionReport:
 
 
 class Orchestrator:
-    """V2 execution orchestrator.
+    """Execution orchestrator.
 
     Drives linear execution step by step. When a step fails and the
     uncertainty detector flags it, spawns micro-branches to explore
@@ -95,7 +95,7 @@ class Orchestrator:
         self._report = ExecutionReport()
 
     def execute(self, command: str) -> ExecutionReport:
-        """Execute an engineering task with the V2 linear-first model."""
+        """Execute an engineering task with the linear-first model."""
         start = time.time()
         self._report.mode = "linear"
 

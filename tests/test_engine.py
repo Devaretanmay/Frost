@@ -1,4 +1,4 @@
-"""Tests for FROST V2 — Linear-First with Micro-Branching.
+"""Tests for FROST — Linear-First Runtime with Micro-Branching.
 
 Tests cover:
 1. Branch Loop Detector (oscillation, stagnation, compression loops)
@@ -15,9 +15,9 @@ import time
 import pytest
 
 from frost.core import frost, run, inspect
-from frost.v2.branch_loop import BranchLoopDetector, AttemptSignature
-from frost.v2.uncertainty import detect_uncertainty
-from frost.v2.memory import EngineeringMemory, StrategyOutcome
+from frost.branch_loop import BranchLoopDetector, AttemptSignature
+from frost.uncertainty import detect_uncertainty
+from frost.memory import EngineeringMemory, StrategyOutcome
 
 
 # ---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ class TestEngineeringMemory:
 class TestCoreLinearPath:
 
     def test_simple_command_succeeds_linearly(self):
-        result = run("echo hello v2 redesign")
+        result = run("echo hello frost engine")
         assert result.status == "success"
         assert result.mode == "linear"
         assert result.uncertainty_points == 0
@@ -182,7 +182,7 @@ class TestCoreLinearPath:
         result = run("")
         assert result.status == "failed"
 
-    def test_inspect_returns_v2_fields(self):
+    def test_inspect_returns_report_fields(self):
         run("echo inspect test")
         info = inspect()
         assert "mode" in info

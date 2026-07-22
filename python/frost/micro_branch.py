@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from frost._core import route_and_compress
-from frost.v2.branch_loop import BranchLoopDetector, AttemptSignature, LoopVerdict, hash_output
+from frost.branch_loop import BranchLoopDetector, AttemptSignature, LoopVerdict, hash_output
 
 
 @dataclass
