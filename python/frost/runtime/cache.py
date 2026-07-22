@@ -57,16 +57,23 @@ def _cache_path(input_hash: str) -> Path:
 
 
 def lookup(input_hash: str) -> Optional[CacheEntry]:
-    """Return cached entry for *input_hash*, or None."""
-    path = _cache_path(input_hash)
-    if not path.exists():
-        return None
+    """Look up a cached result by input hash."""
     try:
-        raw = json.loads(path.read_text())
-        return _deserialize(raw)
-    except (json.JSONDecodeError, KeyError, TypeError):
-        # Corrupt entry — discard
-        path.unlink(missing_ok=True)
+        path = _cache_path(input_hash)
+        if not path.exists():
+            return None
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return _deserialize(data)
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+        # Corrupt or invalid entry — clean up
+        try:
+            path = _cache_path(input_hash)
+            if path.exists():
+                path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        return None
+    except Exception:
         return None
 
 

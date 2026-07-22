@@ -1,19 +1,14 @@
 """FROST — engineering execution for AI agents.
 
-One tool. One capability: execute engineering tasks efficiently.
+Three core primitives:
+    frost.run("Fix failing tests")
+    frost.resume()
+    frost.inspect()
 
-Usage:
-    from frost import frost
-
-    result = frost("Fix the failing tests in this repository")
-    result = frost("Refactor the auth module",
-                   constraints=["Do not modify public APIs"])
-
-Everything else (sessions, compression, checkpointing, caching,
-loop detection, Docker) is an internal implementation detail.
+FROST automatically analyzes task complexity and deploys engineering machinery.
 """
 
-from .core import frost, FrostResult
+from .core import frost, run, resume, inspect, FrostResult
 
-__all__ = ["frost", "FrostResult"]
+__all__ = ["frost", "run", "resume", "inspect", "FrostResult"]
 __version__ = "0.2.0"

@@ -1,14 +1,10 @@
-"""FROST MCP Server — one tool for engineering execution optimization.
+"""FROST MCP Server — one single tool for engineering execution.
 
-The MCP server exposes a single ``frost`` tool. AI agents call it when
-they need to execute engineering tasks with automatic optimization:
+Input:
+    { "task": "...", "constraints": [] }
 
-    frost("Fix the failing tests in this repository")
-    frost("pytest tests/ -v", constraints=["max_retries=5"])
-
-Usage:
-    frost serve              Start MCP server (stdio transport)
-    frost serve --sse        Start MCP server (HTTP/SSE transport)
+Output:
+    { "status": "...", "summary": "...", "output": "...", "next_steps": "..." }
 """
 
 from __future__ import annotations
@@ -21,7 +17,7 @@ from frost.core import frost as _frost
 
 
 def create_server() -> Any:
-    """Create and return the FROST FastMCP server instance with one tool."""
+    """Create and return the FROST FastMCP server instance with ONE single tool."""
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError:
@@ -39,26 +35,18 @@ def create_server() -> Any:
         workdir: str = "",
         cache_key: str = "",
     ) -> str:
-        """Execute an engineering task with FROST optimization.
-
-        Internally handles session management, retries, loop detection,
-        checkpointing, compression, and caching. Returns the best result.
-
-        Use this when you need to execute a task efficiently —
-        FROST decides everything else internally.
+        """Execute an engineering problem. FROST decides all machinery internally.
 
         Args:
-            task: CLI command to execute with optimization.
-            constraints: Optional constraints like ["max_retries=5"].
+            task: Engineering task or CLI command to execute.
+            constraints: Optional constraints.
             timeout: Maximum execution time in seconds (default: 3600).
-            image: Docker image for execution isolation
-                   (default: python:3.12-slim).
-            workdir: Host directory to mount as workspace into container.
-            cache_key: Optional key for result caching across sessions.
+            image: Docker image override if container isolation is required.
+            workdir: Working directory override.
+            cache_key: Optional deterministic key for result caching.
 
         Returns:
-            JSON string with the execution outcome including
-            per-attempt history.
+            JSON with execution outcome, summary, and next steps.
         """
         result = _frost(
             goal=task,
@@ -68,23 +56,48 @@ def create_server() -> Any:
             workdir=workdir,
             cache_key=cache_key,
         )
-        return json.dumps({
+
+        status_text = "completed successfully" if result.status in ("success", "cached") else "failed"
+
+        if result.mode == "branching":
+            summary = (
+                f"Task {status_text} in {result.execution_time_s:.2f}s. "
+                f"Uncertainty points: {result.uncertainty_points}, "
+                f"resolved: {result.uncertainty_resolved}. "
+                f"Token reduction: {result.token_reduction_pct:.0f}%."
+            )
+        else:
+            summary = f"Task {status_text} in {result.execution_time_s:.2f}s across {result.retries + 1} attempt(s)."
+
+        next_steps = "Proceed to next task." if result.status in ("success", "cached") else "Inspect failure log and attempt code fix."
+
+        response: dict[str, Any] = {
             "status": result.status,
+            "summary": summary,
             "output": result.output,
             "error": result.error,
-            "execution_time_s": result.execution_time_s,
+            "next_steps": next_steps,
             "retries": result.retries,
             "cached": result.cached,
-            "attempts": result.attempts,
-        }, indent=2)
+            "mode": result.mode,
+        }
+
+        if result.uncertainty_points > 0:
+            response["uncertainty_points"] = result.uncertainty_points
+            response["uncertainty_resolved"] = result.uncertainty_resolved
+            response["branches_spawned"] = result.branches_spawned
+            response["branches_killed"] = result.branches_killed
+            response["token_reduction_pct"] = result.token_reduction_pct
+            if result.winning_fix:
+                response["winning_fix"] = result.winning_fix
+
+        return json.dumps(response, indent=2)
 
     return mcp
 
 
 def run_server(*, sse: bool = False, host: str = "0.0.0.0", port: int = 8080) -> None:
-    """Start the FROST MCP server with the given transport settings."""
     mcp = create_server()
-
     if sse:
         mcp.run(transport="sse", host=host, port=port)
     else:
@@ -92,27 +105,11 @@ def run_server(*, sse: bool = False, host: str = "0.0.0.0", port: int = 8080) ->
 
 
 def main() -> int:
-    """Entry point for ``python -m frost.server``."""
     import argparse
-
     parser = argparse.ArgumentParser(description="FROST MCP Server")
-    parser.add_argument(
-        "--sse",
-        action="store_true",
-        help="Use SSE (HTTP) transport instead of stdio",
-    )
-    parser.add_argument(
-        "--host",
-        default="0.0.0.0",
-        help="Host address for SSE transport (default: 0.0.0.0)",
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8080,
-        help="Port for SSE transport (default: 8080)",
-    )
-
+    parser.add_argument("--sse", action="store_true", help="Use SSE transport")
+    parser.add_argument("--host", default="0.0.0.0", help="Host address for SSE")
+    parser.add_argument("--port", type=int, default=8080, help="Port for SSE")
     args = parser.parse_args()
     run_server(sse=args.sse, host=args.host, port=args.port)
     return 0

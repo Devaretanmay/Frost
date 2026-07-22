@@ -1,15 +1,17 @@
 """FROST — engineering execution for AI agents.
 
-One tool. One capability: solve engineering problems efficiently.
+Three primitives:
+    frost.run("Fix failing tests")
+    frost.resume()
+    frost.inspect()
 
-Usage:
-    from frost import frost
+V1: Linear execution with compression, loop detection, checkpointing.
+V2: Linear-first execution with micro-branching at uncertainty points.
 
-    result = frost("Fix the failing tests in this repository")
-    result = frost("Refactor the auth module", constraints=["Do not modify public APIs"])
-
-Everything else — sessions, compression, checkpointing, caching,
-loop detection, Docker — is an internal implementation detail.
+The 3 Laws:
+    #1: Nothing reasons over raw artifacts.
+    #2: Nothing branches unless uncertainty exists.
+    #3: Nothing lives longer than its usefulness.
 """
 
 from __future__ import annotations
@@ -17,37 +19,43 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 
 from frost.runtime.session import Session
+from frost.v2.orchestrator import Orchestrator, ExecutionReport
+from frost.v2.micro_branch import BranchBudget
+from frost.v2.memory import EngineeringMemory
+
+
+_LAST_SESSION: Optional[Session] = None
+_LAST_REPORT: Optional[ExecutionReport] = None
+_LAST_TASK: str = ""
+_MEMORY: Optional[EngineeringMemory] = None
 
 
 @dataclass
 class FrostResult:
-    """Result of a FROST execution.
-
-    Attributes:
-        task: The original task that was executed.
-        status: "success" | "failed" | "cached"
-        output: Compressed output from the best attempt.
-        error: Error message if execution failed.
-        execution_time_s: Total wall-clock time in seconds.
-        retries: Number of retry attempts.
-        cached: Whether result was served from cache.
-        attempts: List of per-attempt details (command, exit_code, etc.).
-    """
-
+    """Result of a FROST execution."""
     task: str = ""
     status: str = "failed"
-    output: Optional[str] = None
+    output: str = ""
     error: Optional[str] = None
     execution_time_s: float = 0.0
     retries: int = 0
     cached: bool = False
     attempts: list[dict] = field(default_factory=list)
+    # V2 fields
+    mode: str = "linear"
+    uncertainty_points: int = 0
+    uncertainty_resolved: int = 0
+    branches_spawned: int = 0
+    branches_killed: int = 0
+    token_reduction_pct: float = 0.0
+    winning_fix: str = ""
+    branch_summaries: list[str] = field(default_factory=list)
 
 
-def frost(
+def run(
     goal: str,
     *,
     constraints: Optional[list[str]] = None,
@@ -56,42 +64,19 @@ def frost(
     workdir: str = "",
     cache_key: str = "",
 ) -> FrostResult:
-    """Solve an engineering task with FROST optimization.
+    """Execute an engineering task.
 
-    Creates an isolated session, executes the task, and applies
-    automatic retries, loop detection, checkpointing, compression,
-    and caching. Returns the best result across all attempts.
-
-    The calling agent provides the intelligence. FROST provides the
-    execution optimization — isolation, retries, checkpointing,
-    compression, caching, and loop detection::
-
-        result = frost("Fix the failing tests in tests/")
-        result = frost("Refactor the auth module",
-                       constraints=["Do not modify public APIs"])
-
-    Args:
-        goal: The engineering task to solve.
-        constraints: Optional list of constraints like
-                     ``["max_retries=5"]``.
-        timeout: Maximum execution time in seconds (default: 3600).
-        image: Docker image for execution isolation
-               (default: python:3.12, or ``$FROST_IMAGE``).
-        workdir: Host directory to mount into the container as the
-                 working directory (default: current directory,
-                 or ``$FROST_WORKDIR``).
-        cache_key: Optional deterministic key for result caching
-                   across sessions.
-
-    Returns:
-        FrostResult with the best execution outcome.
+    Invariant #1: Linear execution is the default.
+    If linear execution hits uncertainty, V2 micro-branching activates.
     """
+    global _LAST_SESSION, _LAST_REPORT, _LAST_TASK, _MEMORY
+
     if not goal:
         return FrostResult(task=goal, status="failed", error="No task provided")
 
+    _LAST_TASK = goal
     start = time.time()
 
-    # Parse constraints
     max_retries = 10
     if constraints:
         for c in constraints:
@@ -101,55 +86,121 @@ def frost(
                 except ValueError:
                     pass
 
-    # Default workdir to current directory so project files are accessible
     resolved_workdir = workdir or os.environ.get("FROST_WORKDIR", os.getcwd())
 
-    # Create and run session with FROST optimizations
-    sess = Session(
-        task=goal[:80],
-        max_attempts=max_retries,
-        input_hash=cache_key,
-        timeout=timeout,
-        image=image,
+    # Initialize memory
+    if _MEMORY is None:
+        _MEMORY = EngineeringMemory(session_id=f"frost-{hash(goal) % 100000:05d}")
+
+    # V2 Orchestrator: linear-first with micro-branching at uncertainty
+    orchestrator = Orchestrator(
+        task=goal,
         workdir=resolved_workdir,
+        max_linear_retries=max_retries,
+        branch_budget=BranchBudget(),
+        memory=_MEMORY,
+        timeout=timeout,
     )
 
-    try:
-        result = sess.run(goal)
-        elapsed = time.time() - start
-        status = result.get("status", "failed")
-        # Build output — use stdout on success, stderr on failure
-        artifacts = result.get("artifacts", {})
-        output = artifacts.get("last_stdout", "")
-        if status != "success" and not output:
-            # Include stderr so the agent can see what went wrong
-            output = artifacts.get("last_stderr", "")
+    # Resolve executable command
+    executable = _resolve_command(goal, resolved_workdir)
 
-        # Build error message — include failure hint when available
-        error = None
-        if status != "success":
-            base_error = (
-                result.get("history", [{}])[-1].get("error", "Task failed")
-                if result.get("history") else "Task failed"
-            )
-            hint = artifacts.get("failure_hint", "")
-            error = f"{base_error}\n{hint}" if hint else base_error
+    report = orchestrator.execute(executable)
+    _LAST_REPORT = report
 
-        return FrostResult(
-            task=goal,
-            status=status,
-            output=output,
-            error=error,
-            execution_time_s=elapsed,
-            retries=result.get("attempts", 0),
-            cached=status == "cached",
-            attempts=result.get("history", []),
-        )
-    except Exception as e:
-        elapsed = time.time() - start
-        return FrostResult(
-            task=goal,
-            status="failed",
-            error=str(e),
-            execution_time_s=elapsed,
-        )
+    elapsed = time.time() - start
+
+    return FrostResult(
+        task=goal,
+        status=report.status,
+        output=report.output,
+        error=report.error,
+        execution_time_s=elapsed,
+        retries=max(0, report.total_attempts - 1),
+        mode=report.mode,
+        uncertainty_points=report.uncertainty_points,
+        uncertainty_resolved=report.uncertainty_resolved,
+        branches_spawned=report.branches_spawned,
+        branches_killed=report.branches_killed,
+        token_reduction_pct=report.token_reduction_pct,
+        winning_fix=report.winning_fix,
+        branch_summaries=report.branch_summaries,
+    )
+
+
+def resume() -> FrostResult:
+    """Resume the last execution. Memory skips previously failed strategies."""
+    global _LAST_TASK
+    if not _LAST_TASK:
+        return FrostResult(status="failed", error="No previous session to resume")
+    return run(_LAST_TASK)
+
+
+def inspect() -> dict[str, Any]:
+    """Inspect the last execution report."""
+    global _LAST_REPORT
+    if not _LAST_REPORT:
+        return {"status": "none", "history": []}
+
+    r = _LAST_REPORT
+    return {
+        "status": r.status,
+        "mode": r.mode,
+        "execution_time_s": round(r.execution_time_s, 2),
+        "total_attempts": r.total_attempts,
+        "uncertainty_points": r.uncertainty_points,
+        "uncertainty_resolved": r.uncertainty_resolved,
+        "branches_spawned": r.branches_spawned,
+        "branches_killed": r.branches_killed,
+        "token_reduction_pct": r.token_reduction_pct,
+        "winning_fix": r.winning_fix,
+        "branch_summaries": r.branch_summaries,
+        "output": r.output[:500] if r.output else "",
+        "error": r.error,
+    }
+
+
+def _resolve_command(task: str, workdir: str) -> str:
+    """Extract executable shell command from task string."""
+    cmd = task.strip()
+    cli_starters = [
+        "git", "pytest", "python", "python3", "cargo", "npm", "npx",
+        "make", "go", "bash", "sh", "echo", "ls", "cat", "find",
+        "grep", "pip", "uv", "ruff", "mypy", "black", "isort",
+    ]
+
+    first_word = cmd.split()[0].lower() if cmd else ""
+    if first_word in cli_starters:
+        return cmd
+
+    # Look for CLI command embedded in natural language
+    cmd_lower = cmd.lower()
+    for starter in cli_starters:
+        if f" {starter} " in f" {cmd_lower} ":
+            idx = cmd_lower.find(starter)
+            return cmd[idx:]
+
+    # Fallback: detect project test/build commands
+    from frost.v2.validator import _detect_test_commands, _detect_build_commands
+    test_cmds = _detect_test_commands(workdir)
+    if test_cmds:
+        return test_cmds[0]
+
+    build_cmds = _detect_build_commands(workdir)
+    if build_cmds:
+        return build_cmds[0]
+
+    return cmd
+
+
+class FrostCallable:
+    """frost(task) / frost.run(task) / frost.resume() / frost.inspect()"""
+    def __call__(self, *args, **kwargs) -> FrostResult:
+        return run(*args, **kwargs)
+
+    run = staticmethod(run)
+    resume = staticmethod(resume)
+    inspect = staticmethod(inspect)
+
+
+frost = FrostCallable()

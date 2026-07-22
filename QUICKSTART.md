@@ -1,73 +1,68 @@
 # FROST Quickstart
 
-**Engineering execution for AI agents.**
-
-One function. Executes engineering tasks efficiently.
+FROST provides autonomous execution resilience for AI coding agents. The user gives FROST an engineering task. FROST executes linearly by default, detects uncertainty, micro-branches when needed, and merges the winning fix.
 
 ```python
-from frost import frost
+import frost
 
-result = frost("pytest tests/ -v")
-result = frost("python agent.py", constraints=["max_retries=5"])
+# 1. Run a task
+result = frost.run("Fix failing tests in this repository")
+
+# 2. Resume if interrupted
+result = frost.resume()
+
+# 3. Inspect history and trajectory metrics
+info = frost.inspect()
 ```
 
 ---
 
-## Install
+## The 3 Core Primitives
 
-```bash
-pip install frost
-```
-
-Requires Python 3.10+ and Docker (for execution isolation).
-
----
-
-## Python API
-
-```python
-from frost import frost
-
-# Execute a task with all optimizations
-result = frost("pytest tests/ -v")
-print(result.status)            # "success" | "failed" | "cached"
-print(result.output)            # Compressed output from the best attempt
-print(result.execution_time_s)  # Wall-clock time
-print(result.retries)           # How many retries were needed
-
-# Cache results across sessions
-result = frost("npm run build", cache_key="my-build-v3")
-
-# Enforce constraints
-result = frost("python train.py --epochs 10", constraints=["max_retries=3"])
-```
+| Primitive | Usage | Description |
+| :--- | :--- | :--- |
+| `frost.run(task)` | `frost.run("pytest tests/")` | Solves an engineering task with linear-first execution and uncertainty branching. |
+| `frost.resume()` | `frost.resume()` | Resumes execution state, skipping previously failed strategies via memory. |
+| `frost.inspect()` | `frost.inspect()` | Returns attempt logs, micro-branch summaries, and token reduction metrics. |
 
 ---
 
-## MCP Server
+## Automatic Internal Escalation
 
-Start the server so agents can call the ``frost`` tool:
+Caller flags like `docker=True`, `cache=True`, or `compression=True` are not required. FROST manages internal machinery automatically:
+
+- **Simple task**: Level 0 Native Execution (~20 ms overhead)
+- **Large output**: LogCompressor (95%+ token reduction)
+- **Repeated error**: Uncertainty Detector spawns budget-constrained micro-branches
+- **Internal loop**: BranchLoopDetector terminates code oscillation or stagnation
+- **Winner selection**: Winning branch merged immediately into source repository
+
+---
+
+## MCP Server (Single Tool Integration)
+
+Start the FastMCP server for AI agent integration:
 
 ```bash
 frost serve
 ```
 
-Add to Claude Code:
-
-```bash
-claude mcp add frost -- python -m frost.server
+### Input
+```json
+{
+  "task": "Upgrade this repository to Python 3.13"
+}
 ```
 
----
-
-## What FROST Does
-
-Under the hood, `frost()` wraps each execution with:
-
-- **Retry** — retries failures with loop detection so agents don't get stuck
-- **Checkpointing** — saves state so failures don't restart from zero
-- **Compression** — reduces output size by 50–94%
-- **Caching** — skips duplicate executions via content-addressed cache
-- **Isolation** — runs each task in a clean Docker environment
-
-None of this is visible. One function. One outcome: faster, cheaper execution.
+### Output
+```json
+{
+  "status": "success",
+  "summary": "Task completed successfully in 0.05s across 1 attempt(s).",
+  "output": "...",
+  "next_steps": "Proceed to next task.",
+  "retries": 0,
+  "cached": false,
+  "mode": "linear"
+}
+```

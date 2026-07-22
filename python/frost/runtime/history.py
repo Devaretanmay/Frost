@@ -41,6 +41,8 @@ class WorkflowHistory:
                     "index": a.index,
                     "command": a.command,
                     "exit_code": a.exit_code,
+                    "stdout": a.stdout,
+                    "stderr": a.stderr,
                     "duration_s": round(a.duration_s, 2),
                     "error": a.error,
                 }
