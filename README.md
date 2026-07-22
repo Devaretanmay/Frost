@@ -287,16 +287,9 @@ FROST is evaluated on real production repositories facing breaking ecosystem mig
 
 ---
 
-## 2-Minute Demo Video & Production Guide
+## Demo
 
-A complete scene-by-scene script, voiceover breakdown, and automated terminal tape script are available in **[docs/DEMO_VIDEO_SCRIPT.md](docs/DEMO_VIDEO_SCRIPT.md)**.
-
-For dynamic 4K auto-zooms, camera inertia, motion blur, and production settings (Screen Studio / Remotion / CapCut preset coordinates), see **[docs/PROFESSIONAL_VIDEO_PRODUCTION.md](docs/PROFESSIONAL_VIDEO_PRODUCTION.md)**.
-
-To record the terminal animation automatically using [VHS](https://github.com/charmbracelet/vhs):
-```bash
-vhs scripts/record_demo_vhs.tape
-```
+![FROST Terminal Execution & Micro-Branching Demo](docs/assets/frost_demo_video.gif)
 
 ---
 
