@@ -6,11 +6,18 @@ import argparse
 import sys
 from frost import frost
 from frost.server import run_server
+from frost.installer import run_init_wizard
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
     """Start the FROST MCP server."""
     run_server(sse=args.sse, host=args.host, port=args.port)
+    return 0
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    """Run local-first client installer wizard."""
+    run_init_wizard(choice=args.select)
     return 0
 
 
@@ -31,6 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="FROST — engineering execution CLI",
     )
     sub = parser.add_subparsers(dest="command", required=True)
+
+    # frost init
+    init_p = sub.add_parser("init", help="Configure local MCP client (Claude Code, Cursor, VS Code, etc.)")
+    init_p.add_argument("--select", type=int, default=None, help="Directly select client option [1-7]")
+    init_p.set_defaults(func=cmd_init)
 
     # frost serve
     serve_p = sub.add_parser("serve", help="Start the FROST MCP server")

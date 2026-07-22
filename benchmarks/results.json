@@ -1,0 +1,29 @@
+[
+  {
+    "task_name": "high_volume_file_discovery",
+    "description": "Discover all Python files across repository structure",
+    "command": "find . -name '*.py' -type f",
+    "status": "success",
+    "execution_time_s": 0.347,
+    "mode": "linear",
+    "token_reduction_pct": 50.0
+  },
+  {
+    "task_name": "git_commit_history_scan",
+    "description": "Scan git commit history for active codebase",
+    "command": "git log --oneline -n 100",
+    "status": "success",
+    "execution_time_s": 0.025,
+    "mode": "linear",
+    "token_reduction_pct": 50.0
+  },
+  {
+    "task_name": "pytest_suite_execution",
+    "description": "Execute pytest suite with short traceback",
+    "command": "python3 -m pytest tests/ --tb=short -q",
+    "status": "failed",
+    "execution_time_s": 6.989,
+    "mode": "branching",
+    "token_reduction_pct": 53.1
+  }
+]

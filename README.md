@@ -84,13 +84,19 @@ frost serve
 
 ---
 
-## Empirical Benchmark Performance
+## Empirical Benchmarks
 
-| Repository | Task Type | Without FROST | With FROST | Reduction |
-| :--- | :--- | :--- | :--- | :--- |
-| **Apache Airflow** | High-volume file & log operations | 20,988 tokens / turn | 210 tokens / turn | **99.0%** |
-| **LangChain** | Repository-wide migration | Context window exhausted | 60 clean iterations | **96.2%** |
-| **Django** | Multi-test suite execution | 450,000 tokens consumed | 15,000 tokens consumed | **47.6%** |
+Empirical benchmark metrics are generated reproducibly via `python benchmarks/run_benchmarks.py` and output to [`benchmarks/results.json`](file:///Users/tanmaydevare/Tanmay/Agent/Harada/benchmarks/results.json).
+
+```bash
+python benchmarks/run_benchmarks.py
+```
+
+| Task | Category | Mode | Latency | Token Reduction |
+| :--- | :--- | :---: | :---: | :---: |
+| `high_volume_file_discovery` | Repository structure scan | Linear | 0.35s | **50.0%** |
+| `git_commit_history_scan` | Commit log scan | Linear | 0.03s | **50.0%** |
+| `pytest_suite_execution` | Test suite with micro-branching | Branching | 6.99s | **53.1%** |
 
 ---
 

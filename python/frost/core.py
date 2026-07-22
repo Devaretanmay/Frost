@@ -162,35 +162,8 @@ def inspect() -> dict[str, Any]:
 
 
 def _resolve_command(task: str, workdir: str) -> str:
-    """Extract executable shell command from task string."""
-    cmd = task.strip()
-    cli_starters = [
-        "git", "pytest", "python", "python3", "cargo", "npm", "npx",
-        "make", "go", "bash", "sh", "echo", "ls", "cat", "find",
-        "grep", "pip", "uv", "ruff", "mypy", "black", "isort",
-    ]
-
-    first_word = cmd.split()[0].lower() if cmd else ""
-    if first_word in cli_starters:
-        return cmd
-
-    # Look for CLI command embedded in natural language
-    cmd_lower = cmd.lower()
-    for starter in cli_starters:
-        if f" {starter} " in f" {cmd_lower} ":
-            idx = cmd_lower.find(starter)
-            return cmd[idx:]
-
-    # Fallback: detect project test/build commands
-    test_cmds = _detect_test_commands(workdir)
-    if test_cmds:
-        return test_cmds[0]
-
-    build_cmds = _detect_build_commands(workdir)
-    if build_cmds:
-        return build_cmds[0]
-
-    return cmd
+    """Return explicit command string without fragile NLP heuristics."""
+    return task.strip()
 
 
 class FrostCallable:

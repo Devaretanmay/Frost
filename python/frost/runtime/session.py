@@ -168,6 +168,9 @@ class Session:
                 duration_s=attempt.duration_s, error=attempt.error,
             )
 
+            raw_text = (out or "") + (err or "")
+            tokens_spent = len(raw_text) // 4
+
             if exit_code in (126, 127):
                 # Unrecoverable: command not found or not executable
                 # Fail fast instead of burning all retries
@@ -185,7 +188,7 @@ class Session:
                 self.history.status = "success"
                 self.history.artifacts.setdefault("last_stdout", out)
                 if self.checkpoint_enabled:
-                    _checkpoint.create(self._backend._container, self.session_id, self.attempt, token_estimate=0, loop_hits=self.loop_hits)
+                    _checkpoint.create(self._backend._container, self.session_id, self.attempt, token_estimate=tokens_spent, loop_hits=self.loop_hits)
                 break
 
             # Failure — ask agent for a better command (Path C)
@@ -194,22 +197,23 @@ class Session:
                 if new_command is not None and new_command != current_target:
                     # Checkpoint before switching to the new command
                     if self.checkpoint_enabled:
-                        _checkpoint.create(self._backend._container, self.session_id, self.attempt, token_estimate=0, loop_hits=self.loop_hits)
+                        _checkpoint.create(self._backend._container, self.session_id, self.attempt, token_estimate=tokens_spent, loop_hits=self.loop_hits)
                     target = new_command
                     continue
 
             # No agent feedback or same command — checkpoint and retry with loop detection
             if self.checkpoint_enabled:
-                _checkpoint.create(self._backend._container, self.session_id, self.attempt, token_estimate=0, loop_hits=self.loop_hits)
+                _checkpoint.create(self._backend._container, self.session_id, self.attempt, token_estimate=tokens_spent, loop_hits=self.loop_hits)
 
         self.exit()
 
         if self.input_hash:
+            total_tokens = sum(len((a.stdout or "") + (a.stderr or "")) // 4 for a in self.history.attempts)
             entry = _reuse.CacheEntry(
                 input_hash=self.input_hash,
                 status=self.history.status,
                 output=self.history.artifacts.get("last_stdout", ""),
-                token_spent=0,
+                token_spent=total_tokens,
                 loop_hits=self.loop_hits,
                 attempts=self.attempt,
             )

@@ -3,7 +3,7 @@ requires = ["maturin>=1.5,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "frost"
+name = "frost-execution"
 version = "0.2.0"
 description = "Engineering execution for AI agents — one tool, one capability: execute tasks efficiently"
 requires-python = ">=3.10"

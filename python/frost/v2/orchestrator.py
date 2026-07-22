@@ -205,7 +205,14 @@ class Orchestrator:
 
             if winner and winner.result.status == "success":
                 # --- STEP 8: Merge immediately (Invariant #7) ---
-                self._merge_winner(winner)
+                merged = self._merge_winner(winner)
+                if not merged:
+                    for branch in branches:
+                        branch.cleanup()
+                    self._report.status = "failed"
+                    self._report.error = f"Failed to merge winning branch '{winner.fix_label}' into working tree"
+                    break
+
                 self._report.uncertainty_resolved += 1
                 self._report.output = winner.result.output
                 self._report.winning_fix = winner.fix_label
@@ -253,13 +260,13 @@ class Orchestrator:
         survivors.sort(key=lambda b: (b.result.diff_lines, b.result.attempts_used))
         return survivors[0]
 
-    def _merge_winner(self, winner: MicroBranch) -> None:
+    def _merge_winner(self, winner: MicroBranch) -> bool:
         """Apply the winning branch's changes back to the source directory.
 
         Invariant #7: Merge immediately after a winner is selected.
+        Returns True on clean merge, False if patch application fails.
         """
         try:
-            # Generate patch from branch worktree
             diff = subprocess.run(
                 ["git", "diff", "HEAD"],
                 cwd=winner.workdir,
@@ -267,17 +274,22 @@ class Orchestrator:
                 text=True,
                 timeout=30,
             )
-            if diff.returncode == 0 and diff.stdout.strip():
-                subprocess.run(
-                    ["git", "apply", "--3way", "-"],
-                    input=diff.stdout,
-                    cwd=self.workdir,
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                )
+            if diff.returncode != 0:
+                return False
+            if not diff.stdout.strip():
+                return True
+
+            apply = subprocess.run(
+                ["git", "apply", "--3way", "-"],
+                input=diff.stdout,
+                cwd=self.workdir,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            return apply.returncode == 0
         except Exception:
-            pass
+            return False
 
     def _generate_fix_commands(
         self,
