@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/frost_logo.jpg" alt="FROST Banner" width="100%">
+  <img src="docs/assets/frost_logo.png" alt="FROST Banner" width="100%">
 </p>
 
 <h1 align="center">FROST</h1>
