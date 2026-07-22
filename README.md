@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://pypi.org/project/frost-ai/"><img src="https://img.shields.io/pypi/v/frost-ai.svg?style=for-the-badge&logo=pypi&logoColor=white&color=00f0ff" alt="PyPI Package"></a>
-  <a href="https://pypi.org/project/frost-ai/"><img src="https://img.shields.io/pypi/pyversions/frost-ai.svg?style=for-the-badge&logo=python&logoColor=white&color=3776ab" alt="Python Versions"></a>
+  <a href="https://pypi.org/project/frost-ai/"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-3776ab.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python Versions"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge" alt="License"></a>
   <a href="https://crates.io"><img src="https://img.shields.io/badge/engine-Rust%20abi3-orange.svg?style=for-the-badge&logo=rust&logoColor=white" alt="Rust Engine"></a>
   <a href="https://modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP-FastMCP-7000FF.svg?style=for-the-badge" alt="MCP Server"></a>
