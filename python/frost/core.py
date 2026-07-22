@@ -21,14 +21,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from frost.runtime.session import Session
 from frost.v2.orchestrator import Orchestrator, ExecutionReport
 from frost.v2.micro_branch import BranchBudget
 from frost.v2.memory import EngineeringMemory
 from frost.v2.validator import _detect_test_commands, _detect_build_commands
 
 
-_LAST_SESSION: Optional[Session] = None
 _LAST_REPORT: Optional[ExecutionReport] = None
 _LAST_TASK: str = ""
 _MEMORY: Optional[EngineeringMemory] = None
@@ -70,7 +68,7 @@ def run(
     Invariant #1: Linear execution is the default.
     If linear execution hits uncertainty, V2 micro-branching activates.
     """
-    global _LAST_SESSION, _LAST_REPORT, _LAST_TASK, _MEMORY
+    global _LAST_REPORT, _LAST_TASK, _MEMORY
 
     if not goal:
         return FrostResult(task=goal, status="failed", error="No task provided")
