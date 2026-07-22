@@ -22,6 +22,7 @@ class NativeBackend:
         timeout: int = 3600,
         workdir: str = "",
     ):
+        self.image = image or "native"
         self.timeout = timeout
         self.workdir = workdir or os.getcwd()
         self._container = "native"
