@@ -4,24 +4,24 @@ FROST is evaluated not on artificial micro-benchmarks or synthetic tests, but ag
 
 ---
 
-## 🎯 Master Case Study Matrix
+## Master Case Study Matrix
 
 | Phase | # | Repository | Difficulty | Task | What We're Testing | Status | Test Results |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Phase 1** | 1 | **FastAPI Full Stack Template** (`0.7.0`) | Medium | Modernize to 2026 standards | Canonical repository modernization, Pydantic V2 | 🎉 **DONE** | **54/54 Passed (100%)** |
-| **Phase 1** | 2 | **Cookiecutter Django** (`2026.07.20`) | Medium | Upgrade Python 3.14 & Django | Django ecosystem migrations, env setup | 🎉 **DONE** | **193 Passed, 0 Failed** |
-| **Phase 2** | 3 | **Prefect** (`PrefectHQ/prefect`) | Hard | Modernize dependencies & tests | Async systems, 380+ flow tests | 🎉 **DONE** | **384 Flow Tests Passed** |
-| **Phase 2** | 4 | **LiteLLM** (`BerriAI/litellm`) | Medium | Upgrade OpenAI & AI SDKs | AI tooling & breaking API migrations | 🎉 **DONE** | **209 Unit Tests Passed** |
-| **Phase 2** | 5 | **CrewAI** (`crewAIInc/crewAI`) | Medium | Modernize agent stack & deps | Agent framework migrations & API updates | 🎉 **DONE** | **16/16 Core Tests Passed** |
-| **Phase 3** | 6 | **Apache Superset** (`apache/superset`) | Hard | Upgrade Python & fix test graph | Massive dependency graph, long-running tasks | 📋 **Spec Verified** | Python 3.14 Schema Check |
-| **Phase 3** | 7 | **Saleor** (`saleor/saleor`) | Hard | Upgrade backend & GraphQL stack | Large production GraphQL API | 📋 **Spec Verified** | Python 3.14 Django ORM |
-| **Phase 3** | 8 | **Open WebUI** (`open-webui`) | Medium | Modernize Python backend | Fast-moving OSS AI application | 📋 **Spec Verified** | FastAPI Backend Validated |
-| **Phase 3** | 9 | **Paperless-ngx** (`paperless-ngx`) | Hard | Modernize entire stack | Multi-service architecture, OCR, Docker | 📋 **Spec Verified** | Docker Compose Pipeline |
-| **Phase 4** | 10 | **FROST** (`Devaretanmay/Frost`) | Hard | Self-dogfooding & refactoring | Architectural evolution & Rust bindings | 🎉 **DONE** | **468/468 Passed (416 Rust + 52 Py)** |
+| **Phase 1** | 1 | **FastAPI Full Stack Template** (`0.7.0`) | Medium | Modernize to 2026 standards | Canonical repository modernization, Pydantic V2 | **DONE** | **54/54 Passed (100%)** |
+| **Phase 1** | 2 | **Cookiecutter Django** (`2026.07.20`) | Medium | Upgrade Python 3.14 & Django | Django ecosystem migrations, env setup | **DONE** | **193 Passed, 0 Failed** |
+| **Phase 2** | 3 | **Prefect** (`PrefectHQ/prefect`) | Hard | Modernize dependencies & tests | Async systems, 380+ flow tests | **DONE** | **384 Flow Tests Passed** |
+| **Phase 2** | 4 | **LiteLLM** (`BerriAI/litellm`) | Medium | Upgrade OpenAI & AI SDKs | AI tooling & breaking API migrations | **DONE** | **209 Unit Tests Passed** |
+| **Phase 2** | 5 | **CrewAI** (`crewAIInc/crewAI`) | Medium | Modernize agent stack & deps | Agent framework migrations & API updates | **DONE** | **16/16 Core Tests Passed** |
+| **Phase 3** | 6 | **Apache Superset** (`apache/superset`) | Hard | Upgrade Python & fix test graph | Massive dependency graph, long-running tasks | **Spec Verified** | Python 3.14 Schema Check |
+| **Phase 3** | 7 | **Saleor** (`saleor/saleor`) | Hard | Upgrade backend & GraphQL stack | Large production GraphQL API | **Spec Verified** | Python 3.14 Django ORM |
+| **Phase 3** | 8 | **Open WebUI** (`open-webui`) | Medium | Modernize Python backend | Fast-moving OSS AI application | **Spec Verified** | FastAPI Backend Validated |
+| **Phase 3** | 9 | **Paperless-ngx** (`paperless-ngx`) | Hard | Modernize entire stack | Multi-service architecture, OCR, Docker | **Spec Verified** | Docker Compose Pipeline |
+| **Phase 4** | 10 | **FROST** (`Devaretanmay/Frost`) | Hard | Self-dogfooding & refactoring | Architectural evolution & Rust bindings | **DONE** | **468/468 Passed (416 Rust + 52 Py)** |
 
 ---
 
-## 📋 Detailed Case Study Reports
+## Detailed Case Study Reports
 
 ### Phase 1 — Starter Templates & Boilerplates
 
