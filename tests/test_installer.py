@@ -12,6 +12,10 @@ from frost.installer import (
     install_vscode,
     install_opencode,
     install_gemini,
+    install_windsurf,
+    install_cline,
+    install_continue,
+    install_zed,
     run_init_wizard,
 )
 
@@ -48,6 +52,20 @@ class TestInstallerWizard:
         data = json.loads(Path(path).read_text())
         assert "frost" in data["mcpServers"]
 
+    def test_install_windsurf(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        ok, path = install_windsurf()
+        assert ok
+        data = json.loads(Path(path).read_text())
+        assert "frost" in data["mcpServers"]
+
+    def test_install_cline(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        ok, path = install_cline()
+        assert ok
+        data = json.loads(Path(path).read_text())
+        assert "frost" in data["mcpServers"]
+
     def test_run_init_wizard_select_claude(self, tmp_path, monkeypatch, capsys):
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         run_init_wizard(choice=1)
@@ -57,12 +75,12 @@ class TestInstallerWizard:
         assert "MCP server configured." in out
 
     def test_run_init_wizard_custom_json(self, capsys):
-        run_init_wizard(choice=6)
+        run_init_wizard(choice=10)
         out = capsys.readouterr().out
         assert "mcpServers" in out
         assert "frost" in out
 
     def test_run_init_wizard_skip(self, capsys):
-        run_init_wizard(choice=7)
+        run_init_wizard(choice=11)
         out = capsys.readouterr().out
         assert "Skipped MCP client configuration." in out

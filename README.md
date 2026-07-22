@@ -1,6 +1,6 @@
-![FROST Logo](docs/assets/frost_logo.png)
+![FROST Logo](docs/assets/frost_logo.jpg)
 
-# FROST
+# FROST (`frost-ai`)
 
 > Autonomous Engineering Execution Platform for AI Agents
 
@@ -13,6 +13,45 @@ FROST provides execution resilience, micro-branching, loop prevention, state rec
 AI agents should not reason over raw CLI output, and they should not commit upfront to a single speculative execution path.
 
 FROST executes engineering tasks linearly by default, detects uncertainty points, spawns budget-constrained micro-branches to evaluate candidate fixes in isolation, kills failing branches aggressively via internal loop detection, and merges the winner immediately back into the working tree.
+
+---
+
+## Quickstart
+
+```bash
+pip install frost-ai
+```
+
+```bash
+frost init
+```
+
+```text
+Welcome to FROST.
+
+Detected Claude Code.
+
+Configure automatically? [Y/n]
+```
+
+### Diagnostics
+
+```bash
+frost doctor
+```
+
+```text
+FROST Diagnostics
+
+Runtime:             [ok] Installed
+Python:              [ok] 3.14.6
+MCP Server:          [ok] Available (frost serve)
+Clients:             [ok] Claude Code, Cursor, VS Code detected
+Compression Engine:  [ok] Loaded (Lossless + SmartCrusher)
+Loop Detection:      [ok] Loaded (BranchLoopDetector)
+Version:             v0.2.1
+Repository:          [ok] Ready
+```
 
 ---
 
@@ -100,11 +139,7 @@ python benchmarks/run_benchmarks.py
 
 ---
 
-## Installation
-
-```bash
-pip install .
-```
+## Development & Test Commands
 
 ### Rust Engine Build
 ```bash
@@ -121,4 +156,4 @@ cargo test
 
 ## License
 
-Apache 2.0
+[MIT](file:///Users/tanmaydevare/Tanmay/Agent/Harada/LICENSE)

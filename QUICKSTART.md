@@ -1,6 +1,47 @@
-# FROST Quickstart
+# FROST Quickstart (`frost-ai`)
 
 FROST provides autonomous execution resilience for AI coding agents. The user gives FROST an engineering task. FROST executes linearly by default, detects uncertainty, micro-branches when needed, and merges the winning fix.
+
+## Installation & Setup
+
+```bash
+pip install frost-ai
+```
+
+```bash
+frost init
+```
+
+```text
+Welcome to FROST.
+
+Detected Claude Code.
+
+Configure automatically? [Y/n]
+```
+
+### Diagnostics
+
+```bash
+frost doctor
+```
+
+```text
+FROST Diagnostics
+
+Runtime:             [ok] Installed
+Python:              [ok] 3.14.6
+MCP Server:          [ok] Available (frost serve)
+Clients:             [ok] Claude Code, Cursor, VS Code detected
+Compression Engine:  [ok] Loaded (Lossless + SmartCrusher)
+Loop Detection:      [ok] Loaded (BranchLoopDetector)
+Version:             v0.2.1
+Repository:          [ok] Ready
+```
+
+---
+
+## Python API Usage
 
 ```python
 import frost

@@ -6,7 +6,7 @@ import argparse
 import sys
 from frost import frost
 from frost.server import run_server
-from frost.installer import run_init_wizard
+from frost.installer import run_init_wizard, run_doctor
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
@@ -18,6 +18,12 @@ def cmd_serve(args: argparse.Namespace) -> int:
 def cmd_init(args: argparse.Namespace) -> int:
     """Run local-first client installer wizard."""
     run_init_wizard(choice=args.select)
+    return 0
+
+
+def cmd_doctor(args: argparse.Namespace) -> int:
+    """Run FROST local environment diagnostics."""
+    run_doctor()
     return 0
 
 
@@ -43,6 +49,10 @@ def build_parser() -> argparse.ArgumentParser:
     init_p = sub.add_parser("init", help="Configure local MCP client (Claude Code, Cursor, VS Code, etc.)")
     init_p.add_argument("--select", type=int, default=None, help="Directly select client option [1-7]")
     init_p.set_defaults(func=cmd_init)
+
+    # frost doctor
+    doctor_p = sub.add_parser("doctor", help="Run local environment diagnostics")
+    doctor_p.set_defaults(func=cmd_doctor)
 
     # frost serve
     serve_p = sub.add_parser("serve", help="Start the FROST MCP server")
