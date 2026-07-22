@@ -2,7 +2,7 @@
 name = "frost-core"
 version = "0.2.2"
 edition = "2021"
-license = "MIT"
+license = "BUSL-1.1"
 description = "FROST — Agent execution optimization and log compression engine (Rust core)"
 repository = "https://github.com/Devaretanmay/Frost"
 homepage = "https://github.com/Devaretanmay/Frost"

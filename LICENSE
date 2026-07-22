@@ -1,21 +1,26 @@
-MIT License
+Business Source License 1.1
 
-Copyright (c) 2026 FROST Authors
+Parameters:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Licensor:              FROST Authors (Devaretanmay)
+Licensor's Website:    https://github.com/Devaretanmay/Frost
+Change Date:           January 1st, 2030
+Change License:        Apache License, Version 2.0
+Additional Use Grant:  Production use, personal use, academic use, and internal company use are permitted. Offering FROST as a managed commercial SaaS, competing commercial execution service, or commercial redistribution of FROST as a hosted product is NOT permitted under this Additional Use Grant without explicit authorization from Licensor.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+--------------------------------------------------------------------------------
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO MECHANICAL QUALIFICATIONS, MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Licensor hereby grants you the right to copy, modify, create derivative works, use, and sublicense the Licensed Work, strictly in accordance with the Additional Use Grant specified above.
+
+Under the Additional Use Grant:
+- Production use: Allowed
+- Personal & Academic use: Allowed
+- Internal company use: Allowed
+- Commercial SaaS offerings: NOT allowed
+- Competing commercial products: NOT allowed
+- Commercial redistribution: NOT allowed
+
+Change License & Date:
+On the Change Date (January 1st, 2030), this Business Source License 1.1 shall automatically terminate and the version of FROST licensed hereunder shall be governed by the Apache License, Version 2.0.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

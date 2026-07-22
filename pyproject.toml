@@ -8,7 +8,7 @@ version = "0.2.2"
 description = "Autonomous engineering execution platform for AI agents — execution resilience, micro-branching, and log compression."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "BUSL-1.1" }
 keywords = ["ai", "agents", "mcp", "developer-tools", "execution-engine", "context-compression"]
 classifiers = [
     "Development Status :: 4 - Beta",
