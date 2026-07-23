@@ -9,7 +9,7 @@ Operates inside each micro-branch to detect:
 5. Token inefficiency:   Spent 20k tokens, changed 2 lines
 6. Engineering stagnation: N attempts, no tests improved
 
-FROST LAW #3: Nothing lives longer than its usefulness.
+HAVFRYS LAW #3: Nothing lives longer than its usefulness.
 """
 
 from __future__ import annotations

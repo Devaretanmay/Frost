@@ -358,11 +358,11 @@ impl SmartCrusher {
             let canonical = canonical_array_json(items);
             let h = hash_canonical(&canonical);
             let marker = serde_json::to_string(&serde_json::json!({
-                "_frost_pager": {
+                "_havfrys_pager": {
                     "hash": h,
                     "total_items": items.len(),
                     "valid_indices": format!("{}..{}", self.config.preview_count, items.len().saturating_sub(1)),
-                    "instruction": format!("Call frost_expand('{}', index) to retrieve specific rows", h)
+                    "instruction": format!("Call havfrys_expand('{}', index) to retrieve specific rows", h)
                 }
             })).unwrap_or_default();
             if let Some(store) = &self.ccr_store {
@@ -452,11 +452,11 @@ impl SmartCrusher {
             let canonical = canonical_array_json(items);
             let h = hash_canonical(&canonical);
             let marker = serde_json::to_string(&serde_json::json!({
-                "_frost_pager": {
+                "_havfrys_pager": {
                     "hash": h,
                     "total_items": items.len(),
                     "valid_indices": format!("{}..{}", result.len(), items.len().saturating_sub(1)),
-                    "instruction": format!("Call frost_expand('{}', index) to retrieve specific rows", h)
+                    "instruction": format!("Call havfrys_expand('{}', index) to retrieve specific rows", h)
                 }
             })).unwrap_or_default();
             if let Some(store) = &self.ccr_store {
@@ -1003,7 +1003,7 @@ mod tests {
         let h = result.ccr_hash.expect("ccr_hash populated on drop");
         assert_eq!(h.len(), 12);
         assert!(
-            result.dropped_summary.contains("_frost_pager"),
+            result.dropped_summary.contains("_havfrys_pager"),
             "got: {}",
             result.dropped_summary
         );
@@ -1190,7 +1190,7 @@ mod tests {
         assert!(result.items.len() < items.len(), "lossy path didn't fire");
         assert!(result.ccr_hash.is_some(), "default should produce a hash");
         assert!(
-            result.dropped_summary.contains("_frost_pager"),
+            result.dropped_summary.contains("_havfrys_pager"),
             "default should produce a marker: {:?}",
             result.dropped_summary
         );

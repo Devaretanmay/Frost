@@ -15,6 +15,6 @@ build/
 .pytest_cache/
 .venv/
 
-# FROST local state
-.frost/
-.frost_cache.json
+# HAVFRYS local state
+.havfrys/
+.havfrys_cache.json

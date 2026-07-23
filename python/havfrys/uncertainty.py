@@ -1,6 +1,6 @@
 """Uncertainty Detector — decides whether a failure is a retry or a branch point.
 
-FROST LAW #2: Nothing branches unless uncertainty exists.
+HAVFRYS LAW #2: Nothing branches unless uncertainty exists.
 
 A failure is an uncertainty point when:
 - The error is ambiguous (multiple possible fixes)

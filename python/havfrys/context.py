@@ -1,6 +1,6 @@
-"""Context Resolution Layer — classifies the engineering input environment.
+"""Context Resolution Layer — classifies the engineering HAVFRYS Context Resolution Layer.
 
-FROST is an engineering runtime for engineering problems, not just git repositories.
+HAVFRYS is an engineering runtime for engineering problems, not just git repositories.
 The Context Resolution Layer inspects what the user has provided:
 - Empty workspace (greenfield / generation)
 - Single code script / file
@@ -62,7 +62,7 @@ def resolve_context(workdir: str, goal: str = "") -> EngineeringContext:
     build_manifests = {"Cargo.toml", "pyproject.toml", "package.json", "go.mod", "Makefile", "pom.xml"}
     has_build_system = any(os.path.exists(os.path.join(workdir_abs, m)) for m in build_manifests)
 
-    from frost.validator import _detect_test_commands
+    from havfrys.validator import _detect_test_commands
     test_cmds = _detect_test_commands(workdir_abs)
     has_test_suite = len(test_cmds) > 0
 

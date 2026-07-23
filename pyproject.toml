@@ -3,9 +3,9 @@ requires = ["maturin>=1.5,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "frost-ai"
+name = "havfrys"
 version = "0.2.2"
-description = "Autonomous engineering execution platform for AI agents — execution resilience, micro-branching, and log compression."
+description = "Autonomous engineering execution platform for AI agents — execution resilience, micro-branching, and log compression by HAVFRYS Labs."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BUSL-1.1" }
@@ -35,7 +35,7 @@ Issues = "https://github.com/Devaretanmay/Frost/issues"
 [tool.maturin]
 features = ["pyo3/extension-module"]
 python-source = "python"
-module-name = "frost._core"
+module-name = "havfrys._core"
 
 [project.scripts]
-frost = "frost.cli:main"
+havfrys = "havfrys.cli:main"

@@ -1,4 +1,4 @@
-"""FROST MCP Server — one single tool for engineering execution.
+"""HAVFRYS MCP Server — one single tool for engineering execution by HAVFRYS Labs.
 
 Input:
     { "task": "...", "constraints": [] }
@@ -14,7 +14,7 @@ import json
 import sys
 from typing import Any
 
-from frost.core import frost as _frost
+from havfrys.core import havfrys as _havfrys
 
 try:
     from mcp.server.fastmcp import FastMCP
@@ -23,19 +23,19 @@ except ImportError:
 
 
 def create_server() -> Any:
-    """Create and return the FROST FastMCP server instance with ONE single tool."""
+    """Create and return the HAVFRYS FastMCP server instance with ONE single tool."""
     if FastMCP is None:
         print("MCP SDK required: pip install mcp", file=sys.stderr)
         sys.exit(1)
 
-    mcp = FastMCP("FROST")
+    mcp = FastMCP("HAVFRYS")
 
     @mcp.tool()
     def run(
         task: str,
         workdir: str = "",
     ) -> str:
-        """Execute an engineering problem. FROST decides all execution machinery internally.
+        """Execute an engineering problem. HAVFRYS decides all execution machinery internally.
 
         Args:
             task: Engineering task or problem description in plain English or CLI command.
@@ -44,7 +44,7 @@ def create_server() -> Any:
         Returns:
             JSON with execution status, outcome summary, token reduction %, and next steps.
         """
-        result = _frost(
+        result = _havfrys(
             goal=task,
             workdir=workdir,
         )
@@ -97,7 +97,7 @@ def run_server(*, sse: bool = False, host: str = "0.0.0.0", port: int = 8080) ->
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="FROST MCP Server")
+    parser = argparse.ArgumentParser(description="HAVFRYS MCP Server")
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
     parser.add_argument("--host", default="0.0.0.0", help="Host address for SSE")
     parser.add_argument("--port", type=int, default=8080, help="Port for SSE")

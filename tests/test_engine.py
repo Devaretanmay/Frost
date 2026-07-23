@@ -1,11 +1,11 @@
-"""Tests for FROST — Linear-First Runtime with Micro-Branching.
+"""Tests for HAVFRYS — Linear-First Runtime with Micro-Branching.
 
 Tests cover:
 1. Branch Loop Detector (oscillation, stagnation, compression loops)
 2. Uncertainty Detector (retry vs branch decision)
 3. Micro-Branch (budget enforcement, kill semantics)
 4. Orchestrator (linear path, uncertainty branching)
-5. Core integration (frost.run, frost.inspect)
+5. Core integration (havfrys.run, havfrys.inspect)
 6. Engineering Memory (persistence, skip failed)
 """
 
@@ -14,10 +14,10 @@ import os
 import time
 import pytest
 
-from frost.core import frost, run, inspect
-from frost.branch_loop import BranchLoopDetector, AttemptSignature
-from frost.uncertainty import detect_uncertainty
-from frost.memory import EngineeringMemory, StrategyOutcome
+from havfrys.core import havfrys, run, inspect
+from havfrys.branch_loop import BranchLoopDetector, AttemptSignature
+from havfrys.uncertainty import detect_uncertainty
+from havfrys.memory import EngineeringMemory, StrategyOutcome
 
 
 # ---------------------------------------------------------------------------
@@ -169,20 +169,21 @@ class TestEngineeringMemory:
 class TestCoreLinearPath:
 
     def setup_method(self):
-        if os.path.exists(".frost_cache.json"):
-            try:
-                os.remove(".frost_cache.json")
-            except OSError:
-                pass
+        for cache_name in (".havfrys_cache.json", ".frost_cache.json"):
+            if os.path.exists(cache_name):
+                try:
+                    os.remove(cache_name)
+                except OSError:
+                    pass
 
     def test_simple_command_succeeds_linearly(self):
-        result = run("echo hello frost engine")
+        result = run("echo hello havfrys engine")
         assert result.status == "success"
         assert result.mode == "linear"
         assert result.uncertainty_points == 0
 
-    def test_frost_callable(self):
-        result = frost("echo callable test")
+    def test_havfrys_callable(self):
+        result = havfrys("echo callable test")
         assert result.status == "success"
 
     def test_empty_task_fails(self):

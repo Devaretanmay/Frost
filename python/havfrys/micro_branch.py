@@ -1,7 +1,7 @@
 """Micro-Branch — tiny, budget-constrained execution branches.
 
-FROST Invariant #3: Branches are tiny and short-lived.
-FROST Invariant #6: Kill branches aggressively.
+HAVFRYS Invariant #3: Branches are tiny and short-lived.
+HAVFRYS Invariant #6: Kill branches aggressively.
 
 A micro-branch is NOT a full trajectory. It is:
 - A single fix attempt in an isolated worktree
@@ -25,8 +25,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from frost._core import route_and_compress
-from frost.branch_loop import BranchLoopDetector, AttemptSignature, LoopVerdict, hash_output
+from havfrys._core import route_and_compress
+from havfrys.branch_loop import BranchLoopDetector, AttemptSignature, LoopVerdict, hash_output
 
 
 @dataclass
@@ -230,7 +230,7 @@ class MicroBranch:
 
     def _create_worktree(self) -> str:
         """Create isolated working directory for this micro-branch."""
-        worktree_base = os.path.join(tempfile.gettempdir(), "frost_branches")
+        worktree_base = os.path.join(tempfile.gettempdir(), "havfrys_branches")
         os.makedirs(worktree_base, exist_ok=True)
 
         # Try git worktree (fast, zero-copy)
@@ -244,7 +244,7 @@ class MicroBranch:
             )
             if result.returncode == 0:
                 worktree_dir = os.path.join(worktree_base, self.id)
-                branch_name = f"frost/{self.id}"
+                branch_name = f"havfrys/{self.id}"
                 subprocess.run(
                     ["git", "worktree", "add", "-b", branch_name, worktree_dir],
                     cwd=self.source_dir,

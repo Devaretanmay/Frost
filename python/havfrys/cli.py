@@ -1,16 +1,16 @@
-"""frost — developer CLI for FROST engineering execution."""
+"""havfrys — developer CLI for HAVFRYS engineering execution by HAVFRYS Labs."""
 
 from __future__ import annotations
 
 import argparse
 import sys
-from frost import frost
-from frost.server import run_server
-from frost.installer import run_init_wizard, run_doctor
+from havfrys import havfrys
+from havfrys.server import run_server
+from havfrys.installer import run_init_wizard, run_doctor
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
-    """Start the FROST MCP server."""
+    """Start the HAVFRYS MCP server."""
     run_server(sse=args.sse, host=args.host, port=args.port)
     return 0
 
@@ -22,15 +22,15 @@ def cmd_init(args: argparse.Namespace) -> int:
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
-    """Run FROST local environment diagnostics."""
+    """Run HAVFRYS local environment diagnostics."""
     run_doctor()
     return 0
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    """Execute a command via FROST runtime."""
+    """Execute a command via HAVFRYS runtime."""
     cmd = " ".join(args.command)
-    res = frost(cmd, image=args.image, workdir=args.workdir, timeout=args.timeout)
+    res = havfrys(cmd, image=args.image, workdir=args.workdir, timeout=args.timeout)
     out = res.output or res.error or ""
     if out:
         print(out.strip())
@@ -40,29 +40,29 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="frost",
-        description="FROST — engineering execution CLI",
+        prog="havfrys",
+        description="HAVFRYS — engineering execution CLI by HAVFRYS Labs",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    # frost init
+    # havfrys init
     init_p = sub.add_parser("init", help="Configure local MCP client (Claude Code, Cursor, VS Code, etc.)")
     init_p.add_argument("--select", type=int, default=None, help="Directly select client option [1-7]")
     init_p.set_defaults(func=cmd_init)
 
-    # frost doctor
+    # havfrys doctor
     doctor_p = sub.add_parser("doctor", help="Run local environment diagnostics")
     doctor_p.set_defaults(func=cmd_doctor)
 
-    # frost serve
-    serve_p = sub.add_parser("serve", help="Start the FROST MCP server")
+    # havfrys serve
+    serve_p = sub.add_parser("serve", help="Start the HAVFRYS MCP server")
     serve_p.add_argument("--sse", action="store_true", help="Use SSE transport")
     serve_p.add_argument("--host", default="0.0.0.0", help="Host for SSE")
     serve_p.add_argument("--port", type=int, default=8080, help="Port for SSE")
     serve_p.set_defaults(func=cmd_serve)
 
-    # frost run <command>
-    run_p = sub.add_parser("run", help="Execute a task via FROST")
+    # havfrys run <command>
+    run_p = sub.add_parser("run", help="Execute a task via HAVFRYS")
     run_p.add_argument("command", nargs="+", help="Command or task to execute")
     run_p.add_argument("--image", default="", help="Docker image override (Level 3)")
     run_p.add_argument("--workdir", default="", help="Working directory override")

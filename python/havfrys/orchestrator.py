@@ -36,10 +36,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from frost._core import route_and_compress
-from frost.uncertainty import detect_uncertainty, UncertaintySignal
-from frost.micro_branch import MicroBranch, BranchBudget, BranchResult, compressed_summary
-from frost.memory import EngineeringMemory, StrategyOutcome
+from havfrys._core import route_and_compress
+from havfrys.uncertainty import detect_uncertainty, UncertaintySignal
+from havfrys.micro_branch import MicroBranch, BranchBudget, BranchResult, compressed_summary
+from havfrys.memory import EngineeringMemory, StrategyOutcome
 
 
 @dataclass
@@ -322,7 +322,7 @@ class Orchestrator:
     def _run_command(self, cmd: str) -> tuple[int, str, str]:
         """Execute a command in the main workdir (or inside Docker container if self.image set)."""
         if self.image:
-            from frost.backends.docker import DockerBackend
+            from havfrys.backends.docker import DockerBackend
             backend = DockerBackend(
                 image=self.image,
                 resource_args=["--cpus=2", "--memory=2g"],

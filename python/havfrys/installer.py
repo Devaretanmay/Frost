@@ -1,8 +1,8 @@
-"""Local-first client installer wizard and diagnostics for FROST.
+"""Local-first client installer wizard and diagnostics for HAVFRYS by HAVFRYS Labs.
 
 Configures local agentic environments (Claude Code, Gemini CLI, Cursor, VS Code,
-OpenCode, Windsurf, Cline, Continue, Zed, Aider) to use the local FROST MCP process (`frost serve`).
-Includes `frost doctor` for instant local runtime diagnostics.
+OpenCode, Windsurf, Cline, Continue, Zed, Aider) to use the local HAVFRYS MCP process (`havfrys serve`).
+Includes `havfrys doctor` for instant local runtime diagnostics.
 No login, no SaaS, no API keys — 100% local-first execution.
 """
 
@@ -34,11 +34,11 @@ CLIENT_PROVIDERS = [
 ]
 
 
-def get_frost_mcp_config() -> dict[str, Any]:
+def get_havfrys_mcp_config() -> dict[str, Any]:
     """Return standard local MCP server configuration snippet."""
-    frost_path = shutil.which("frost") or "frost"
+    cmd_path = shutil.which("havfrys") or shutil.which("frost") or "havfrys"
     return {
-        "command": frost_path,
+        "command": cmd_path,
         "args": ["serve"],
     }
 
@@ -143,7 +143,7 @@ def detect_installed_clients() -> list[tuple[str, Path]]:
 
 
 def install_claude_code() -> tuple[bool, str]:
-    """Configure Claude Code / Desktop to run local FROST MCP server."""
+    """Configure Claude Code / Desktop to run local HAVFRYS MCP server."""
     possible_paths = [
         Path.home() / ".claude.json",
         Path.home() / ".config" / "claude" / "config.json",
@@ -154,55 +154,55 @@ def install_claude_code() -> tuple[bool, str]:
         if p.parent.exists():
             target_path = p
             break
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_cursor() -> tuple[bool, str]:
-    """Configure Cursor editor to run local FROST MCP server."""
+    """Configure Cursor editor to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".cursor" / "mcp.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_vscode() -> tuple[bool, str]:
-    """Configure VS Code to run local FROST MCP server."""
+    """Configure VS Code to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".vscode" / "mcp.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_opencode() -> tuple[bool, str]:
-    """Configure OpenCode to run local FROST MCP server."""
+    """Configure OpenCode to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".config" / "opencode" / "mcp.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_gemini() -> tuple[bool, str]:
-    """Configure Gemini CLI to run local FROST MCP server."""
+    """Configure Gemini CLI to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".gemini" / "mcp.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_windsurf() -> tuple[bool, str]:
-    """Configure Windsurf to run local FROST MCP server."""
+    """Configure Windsurf to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".codeium" / "windsurf" / "mcp_config.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_cline() -> tuple[bool, str]:
-    """Configure Cline / Roo Code to run local FROST MCP server."""
+    """Configure Cline / Roo Code to run local HAVFRYS MCP server."""
     target_path = Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_continue() -> tuple[bool, str]:
-    """Configure Continue to run local FROST MCP server."""
+    """Configure Continue to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".continue" / "config.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def install_zed() -> tuple[bool, str]:
-    """Configure Zed Editor to run local FROST MCP server."""
+    """Configure Zed Editor to run local HAVFRYS MCP server."""
     target_path = Path.home() / ".config" / "zed" / "settings.json"
-    return _update_mcp_json_file(target_path, "frost")
+    return _update_mcp_json_file(target_path, "havfrys")
 
 
 def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]:
@@ -218,7 +218,7 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
                 config = {}
 
         servers = config.setdefault("mcpServers", {})
-        servers[server_name] = get_frost_mcp_config()
+        servers[server_name] = get_havfrys_mcp_config()
 
         file_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
         return True, str(file_path)
@@ -227,8 +227,8 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
 
 
 def run_init_wizard(choice: Optional[int] = None) -> None:
-    """Run interactive or non-interactive frost init wizard with client auto-detection."""
-    print("Welcome to FROST.\n")
+    """Run interactive or non-interactive havfrys init wizard with client auto-detection."""
+    print("Welcome to HAVFRYS by HAVFRYS Labs.\n")
 
     detected = detect_installed_clients()
     if detected and choice is None:
@@ -259,7 +259,7 @@ def run_init_wizard(choice: Optional[int] = None) -> None:
             choice = 11
 
     if choice is None:
-        print("How would you like to use FROST?\n")
+        print("How would you like to use HAVFRYS?\n")
         for provider in CLIENT_PROVIDERS:
             print(f"  {provider}")
         print()
@@ -300,7 +300,7 @@ def run_init_wizard(choice: Optional[int] = None) -> None:
         print("\nCopy and paste this snippet into your MCP client configuration:\n")
         snippet = {
             "mcpServers": {
-                "frost": get_frost_mcp_config()
+                "havfrys": get_havfrys_mcp_config()
             }
         }
         print(json.dumps(snippet, indent=2))
@@ -309,8 +309,8 @@ def run_init_wizard(choice: Optional[int] = None) -> None:
 
 
 def run_doctor() -> None:
-    """Run FROST Diagnostics for local environment."""
-    print("FROST Diagnostics\n")
+    """Run HAVFRYS Diagnostics for local environment."""
+    print("HAVFRYS Diagnostics (HAVFRYS Labs)\n")
 
     # Runtime check
     print("Runtime:")
@@ -322,7 +322,7 @@ def run_doctor() -> None:
 
     # MCP Server
     print("\nMCP Server:")
-    print("  [ok] Available (frost serve)")
+    print("  [ok] Available (havfrys serve)")
 
     # Client Configurations
     print("\nClients:")
@@ -331,7 +331,7 @@ def run_doctor() -> None:
         for name, path in detected:
             print(f"  [ok] {name} detected ({path})")
     else:
-        print("  [-] No MCP client configs auto-detected (run 'frost init')")
+        print("  [-] No MCP client configs auto-detected (run 'havfrys init')")
 
     # Docker check (optional)
     print("\nDocker:")
@@ -344,7 +344,7 @@ def run_doctor() -> None:
     # Compression Engine
     print("\nCompression Engine:")
     try:
-        from frost._core import route_and_compress
+        from havfrys._core import route_and_compress
         print("  [ok] Loaded (Lossless + SmartCrusher)")
     except Exception as e:
         print(f"  [err] Failed to load: {e}")
@@ -352,7 +352,7 @@ def run_doctor() -> None:
     # Loop Detection
     print("\nLoop Detection:")
     try:
-        from frost._core import LoopEngine
+        from havfrys._core import LoopEngine
         print("  [ok] Loaded (BranchLoopDetector)")
     except Exception as e:
         print(f"  [err] Failed to load: {e}")
@@ -371,11 +371,11 @@ def run_doctor() -> None:
 def _print_result(client_name: str, success: bool, path_or_err: str) -> None:
     """Print success or failure summary for installer wizard."""
     if success:
-        print(f"\nInstalling FROST MCP for {client_name}...\n")
+        print(f"\nInstalling HAVFRYS MCP for {client_name}...\n")
         print("  [ok] Runtime installed.")
         print("  [ok] MCP server configured.")
         print(f"  [ok] Updated config at {path_or_err}.\n")
         print("Done.\n")
-        print("Run your coding agent and start using FROST.")
+        print("Run your coding agent and start using HAVFRYS.")
     else:
         print(f"\nFailed to configure {client_name}: {path_or_err}")

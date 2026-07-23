@@ -1,9 +1,9 @@
-"""FROST — Uncertainty-Aware Engineering Execution Runtime.
+"""HAVFRYS — Uncertainty-Aware Engineering Execution Runtime by HAVFRYS Labs.
 
 Three Primitives:
-    frost.run("pytest tests/")
-    frost.resume()
-    frost.inspect()
+    havfrys.run("pytest tests/")
+    havfrys.resume()
+    havfrys.inspect()
 
 The 3 Laws:
     #1: Nothing reasons over raw artifacts.
@@ -19,10 +19,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from frost.orchestrator import Orchestrator, ExecutionReport
-from frost.micro_branch import BranchBudget
-from frost.memory import EngineeringMemory
-from frost.validator import _detect_test_commands, _detect_build_commands
+from havfrys.orchestrator import Orchestrator, ExecutionReport
+from havfrys.micro_branch import BranchBudget
+from havfrys.memory import EngineeringMemory
+from havfrys.validator import _detect_test_commands, _detect_build_commands
 
 
 _LAST_REPORT: Optional[ExecutionReport] = None
@@ -31,8 +31,8 @@ _MEMORY: Optional[EngineeringMemory] = None
 
 
 @dataclass
-class FrostResult:
-    """Result of a FROST execution."""
+class HavfrysResult:
+    """Result of a HAVFRYS execution."""
     task: str = ""
     status: str = "failed"
     output: str = ""
@@ -51,7 +51,11 @@ class FrostResult:
     branch_summaries: list[str] = field(default_factory=list)
 
 
-def run(goal: str, *, workdir: str = "") -> FrostResult:
+# Alias for backward compatibility
+FrostResult = HavfrysResult
+
+
+def run(goal: str, *, workdir: str = "") -> HavfrysResult:
     """Execute an engineering task.
 
     Linear execution is the default. If linear execution hits uncertainty,
@@ -60,15 +64,18 @@ def run(goal: str, *, workdir: str = "") -> FrostResult:
     global _LAST_REPORT, _LAST_TASK, _MEMORY
 
     if not goal:
-        return FrostResult(task=goal, status="failed", error="No task provided")
+        return HavfrysResult(task=goal, status="failed", error="No task provided")
 
     _LAST_TASK = goal
     start = time.time()
-    resolved_workdir = workdir or os.environ.get("FROST_WORKDIR", os.getcwd())
+    resolved_workdir = workdir or os.environ.get("HAVFRYS_WORKDIR") or os.environ.get("FROST_WORKDIR", os.getcwd())
 
     # Automatic Transparent Content-Addressable Cache Key
     internal_cache_key = f"{resolved_workdir}:{goal.strip()}"
-    cache_file = os.path.join(resolved_workdir, ".frost_cache.json")
+    cache_file = os.path.join(resolved_workdir, ".havfrys_cache.json")
+    if not os.path.exists(cache_file) and os.path.exists(os.path.join(resolved_workdir, ".frost_cache.json")):
+        cache_file = os.path.join(resolved_workdir, ".frost_cache.json")
+
     if os.path.exists(cache_file):
         try:
             with open(cache_file, "r", encoding="utf-8") as f:
@@ -77,7 +84,7 @@ def run(goal: str, *, workdir: str = "") -> FrostResult:
                     cache_data = json.loads(content)
                     if internal_cache_key in cache_data:
                         c = cache_data[internal_cache_key]
-                        return FrostResult(
+                        return HavfrysResult(
                             task=goal,
                             status=c.get("status", "success"),
                             output=c.get("output", ""),
@@ -89,16 +96,16 @@ def run(goal: str, *, workdir: str = "") -> FrostResult:
             pass
 
     # 1. Context Resolution Layer
-    from frost.context import resolve_context, ContextType
+    from havfrys.context import resolve_context, ContextType
     ctx = resolve_context(resolved_workdir, goal)
 
     # 2. Automatic Internal Risk & Sandbox Assessment
-    requires_sandbox = "untrusted" in goal.lower() or ctx.is_docker or os.path.exists(os.path.join(resolved_workdir, ".frost_sandbox"))
+    requires_sandbox = "untrusted" in goal.lower() or ctx.is_docker or os.path.exists(os.path.join(resolved_workdir, ".havfrys_sandbox")) or os.path.exists(os.path.join(resolved_workdir, ".frost_sandbox"))
     internal_image = "ubuntu:latest" if requires_sandbox else ""
 
     # Initialize memory
     if _MEMORY is None:
-        _MEMORY = EngineeringMemory(session_id=f"frost-{hash(goal) % 100000:05d}")
+        _MEMORY = EngineeringMemory(session_id=f"havfrys-{hash(goal) % 100000:05d}")
 
     # Orchestrator: linear-first with micro-branching at uncertainty
     orchestrator = Orchestrator(
@@ -120,9 +127,10 @@ def run(goal: str, *, workdir: str = "") -> FrostResult:
     # Save to transparent internal cache
     if internal_cache_key:
         cache_data = {}
-        if os.path.exists(cache_file):
+        target_cache_file = os.path.join(resolved_workdir, ".havfrys_cache.json")
+        if os.path.exists(target_cache_file):
             try:
-                with open(cache_file, "r", encoding="utf-8") as f:
+                with open(target_cache_file, "r", encoding="utf-8") as f:
                     raw = f.read().strip()
                     if raw:
                         cache_data = json.loads(raw)
@@ -133,12 +141,12 @@ def run(goal: str, *, workdir: str = "") -> FrostResult:
             "output": str(getattr(report, "output", "")),
             "token_reduction_pct": float(getattr(report, "token_reduction_pct", 0.0)),
         }
-        with open(cache_file, "w", encoding="utf-8") as f:
+        with open(target_cache_file, "w", encoding="utf-8") as f:
             f.write(json.dumps(cache_data, indent=2))
 
     elapsed = time.time() - start
 
-    return FrostResult(
+    return HavfrysResult(
         task=goal,
         status=report.status,
         output=report.output,
@@ -156,11 +164,11 @@ def run(goal: str, *, workdir: str = "") -> FrostResult:
     )
 
 
-def resume() -> FrostResult:
+def resume() -> HavfrysResult:
     """Resume the last execution. Memory skips previously failed strategies."""
     global _LAST_TASK
     if not _LAST_TASK:
-        return FrostResult(status="failed", error="No previous session to resume")
+        return HavfrysResult(status="failed", error="No previous session to resume")
     return run(_LAST_TASK)
 
 
@@ -237,9 +245,9 @@ def _resolve_command(task: str, workdir: str) -> str:
     return "true"
 
 
-class FrostCallable:
-    """frost(task) / frost.run(task) / frost.resume() / frost.inspect()"""
-    def __call__(self, *args, **kwargs) -> FrostResult:
+class HavfrysCallable:
+    """havfrys(task) / havfrys.run(task) / havfrys.resume() / havfrys.inspect()"""
+    def __call__(self, *args, **kwargs) -> HavfrysResult:
         return run(*args, **kwargs)
 
     run = staticmethod(run)
@@ -247,4 +255,5 @@ class FrostCallable:
     inspect = staticmethod(inspect)
 
 
-frost = FrostCallable()
+havfrys = HavfrysCallable()
+frost = havfrys

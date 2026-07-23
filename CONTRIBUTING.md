@@ -1,6 +1,6 @@
-# Contributing to FROST
+# Contributing to HAVFRYS
 
-Thank you for your interest in contributing to FROST! We welcome contributions from the community.
+Thank you for your interest in contributing to HAVFRYS! We welcome contributions from the community.
 
 ## Development Setup
 
@@ -36,7 +36,7 @@ cargo test
 
 ## Architectural Guidelines
 
-When contributing to FROST, adhere to the 7 Architectural Invariants:
+When contributing to HAVFRYS, adhere to the 7 Architectural Invariants:
 1. **Linear execution is default**.
 2. **Branch only at uncertainty points**.
 3. **Branches are tiny and short-lived**.
@@ -54,4 +54,4 @@ When contributing to FROST, adhere to the 7 Architectural Invariants:
 
 ## License
 
-By contributing to FROST, you agree that your contributions will be licensed under the repo's [MIT License](LICENSE).
+By contributing to HAVFRYS, you agree that your contributions will be licensed under the repo's [MIT License](LICENSE).

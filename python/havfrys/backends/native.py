@@ -1,4 +1,4 @@
-"""Native execution backend for FROST (Level 0 - Zero Overhead)."""
+"""Native execution backend for HAVFRYS (Level 0 - Zero Overhead)."""
 
 import io
 import os

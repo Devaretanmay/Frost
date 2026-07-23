@@ -1,4 +1,4 @@
-"""Docker backend for FROST execution isolation."""
+"""Docker backend for HAVFRYS execution isolation."""
 
 import inspect
 import json
@@ -31,8 +31,8 @@ class DockerBackend:
 
     def start(self) -> str:
         if not shutil.which("docker"):
-            raise RuntimeError("Docker is required for FROST but was not found.")
-        args = ["docker", "run", "-d", "--rm", "-e", "FROST_SESSION=1"]
+            raise RuntimeError("Docker is required for HAVFRYS but was not found.")
+        args = ["docker", "run", "-d", "--rm", "-e", "HAVFRYS_SESSION=1"]
         # Mount host working directory into the container
         if self.workdir:
             args += ["-v", f"{self.workdir}:{_WORKSPACE}"]

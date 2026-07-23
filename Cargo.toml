@@ -1,17 +1,17 @@
 [package]
-name = "frost-core"
+name = "havfrys-core"
 version = "0.2.2"
 edition = "2021"
 license = "BUSL-1.1"
-description = "FROST — Agent execution optimization and log compression engine (Rust core)"
+description = "HAVFRYS — Agent execution optimization and log compression engine by HAVFRYS Labs (Rust core)"
 repository = "https://github.com/Devaretanmay/Frost"
 homepage = "https://github.com/Devaretanmay/Frost"
-documentation = "https://docs.rs/crate/frost-core"
+documentation = "https://docs.rs/crate/havfrys-core"
 keywords = ["ai", "mcp", "compression", "execution", "agent"]
 categories = ["development-tools", "command-line-utilities"]
 
 [lib]
-name = "frost_core"
+name = "havfrys_core"
 crate-type = ["cdylib"]
 
 [dependencies]

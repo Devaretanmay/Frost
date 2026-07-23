@@ -1,9 +1,9 @@
 """Engineering Memory — session-scoped record of what worked and what failed.
 
-Tracks strategy outcomes within and across sessions so FROST can:
+Tracks strategy outcomes within and across sessions so HAVFRYS can:
 - Skip strategies that already failed for similar tasks
 - Prioritize strategies that scored well historically
-- Avoid re-exploring dead branches on frost.resume()
+- Avoid re-exploring dead branches on havfrys.resume()
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Optional
 
 
-MEMORY_DIR = Path.home() / ".frost" / "memory"
+MEMORY_DIR = Path.home() / ".havfrys" / "memory"
 
 
 def _ensure_memory_dir() -> Path:
@@ -45,7 +45,7 @@ class StrategyOutcome:
 class EngineeringMemory:
     """Session-scoped memory of strategy outcomes.
 
-    Persists to ~/.frost/memory/ so frost.resume() can skip dead strategies
+    Persists to ~/.havfrys/memory/ so havfrys.resume() can skip dead strategies
     and prioritize winners from prior runs.
     """
 
