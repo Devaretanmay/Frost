@@ -209,7 +209,7 @@ def _is_shell_command(task: str) -> bool:
     }
     if first_word in shell_prefixes:
         return True
-    if any(task_clean.startswith(prefix) for prefix in ["./", "/", "../", "TORTOISE_TEST_DB="]):
+    if any(task_clean.startswith(prefix) for prefix in ["./", "/", "../"]) or "=" in first_word:
         return True
     return False
 

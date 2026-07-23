@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.2.2"
+VERSION = "0.2.3"
 
 CLIENT_PROVIDERS = [
     "1. Claude Code / Desktop",
@@ -185,6 +185,10 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
             try:
                 config = json.loads(file_path.read_text(encoding="utf-8"))
             except Exception:
+                try:
+                    shutil.copy2(file_path, file_path.with_suffix(".json.bak"))
+                except Exception:
+                    pass
                 config = {}
 
         servers = config.setdefault("mcpServers", {})

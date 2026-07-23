@@ -45,8 +45,9 @@ def resolve_context(workdir: str, goal: str = "") -> EngineeringContext:
 
     files = []
     try:
+        ignored_dirs = {".git", ".havfrys", "node_modules", "venv", ".venv", "__pycache__", "target", "build", "dist", "site-packages"}
         for root, dirs, filenames in os.walk(workdir_abs):
-            dirs[:] = [d for d in dirs if not d.startswith(".") or d == ".git"]
+            dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ignored_dirs]
             for f in filenames:
                 if not f.startswith("."):
                     files.append(os.path.join(root, f))

@@ -56,8 +56,10 @@ class DockerBackend:
     def execute_cli(self, command: str, cwd: Optional[str], env: Optional[dict]) -> Tuple[int, str, str]:
         if not self._container:
             raise RuntimeError("Container not running")
-        merged_env = {**os.environ, **(env or {})}
         exec_args = ["docker", "exec"]
+        if env:
+            for k, v in env.items():
+                exec_args += ["-e", f"{k}={v}"]
         # Use mounted workdir as the execution directory inside the container
         if cwd:
             exec_args += ["-w", cwd]
@@ -66,7 +68,7 @@ class DockerBackend:
         exec_args += [self._container, "sh", "-c", command]
         proc = subprocess.run(
             exec_args,
-            capture_output=True, text=True, env=merged_env, timeout=self.timeout
+            capture_output=True, text=True, timeout=self.timeout
         )
         return proc.returncode, proc.stdout, proc.stderr
 
