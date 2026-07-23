@@ -8,9 +8,9 @@ pub mod runtime;
 
 pub use engines::loop_detection::history;
 pub use engines::loop_detection::history::LoopVerdict;
-pub use engines::loop_detection::state::FrostState;
+pub use engines::loop_detection::state::HavfrysState;
 
-pub fn verify(state: &mut FrostState, tool_slice: &[u8], args_slice: &[u8]) -> u8 {
+pub fn verify(state: &mut HavfrysState, tool_slice: &[u8], args_slice: &[u8]) -> u8 {
     let tool_str = std::str::from_utf8(tool_slice).unwrap_or("").to_string();
     let args_str = std::str::from_utf8(args_slice).unwrap_or("").to_string();
 
@@ -45,14 +45,14 @@ use pyo3::prelude::*;
 
 #[pyclass(name = "LoopEngine")]
 pub struct PyLoopEngine {
-    state: FrostState,
+    state: HavfrysState,
 }
 
 #[pymethods]
 impl PyLoopEngine {
     #[new]
     fn new(yaml_config: &str) -> PyResult<Self> {
-        let state = FrostState::new(yaml_config)
+        let state = HavfrysState::new(yaml_config)
             .map_err(|e| PyValueError::new_err(format!("Failed to parse config: {}", e)))?;
         Ok(Self { state })
     }

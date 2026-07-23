@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/frost_logo.jpg" alt="HAVFRYS Banner" width="100%">
+  <img src="docs/assets/havfrys_logo.jpg" alt="HAVFRYS Banner" width="100%">
 </p>
 
 <h1 align="center">HAVFRYS</h1>
@@ -84,7 +84,7 @@ Repository:          [ok] Ready
                          |                               |
                         SDK                             MCP
                          |                               |
-                  havfrys.run()                        frost tool
+                  havfrys.run()                        havfrys tool
                   havfrys.resume()                         |
                   havfrys.inspect()                        |
                          |                               |
@@ -226,7 +226,7 @@ Repository:          [ok] Ready
 
 ## Single-Tool FastMCP Server
 
-HAVFRYS exposes a single, unified MCP tool (`frost`) over stdio:
+HAVFRYS exposes a single, unified MCP tool (`havfrys`) over stdio:
 
 ```bash
 havfrys serve
@@ -289,7 +289,7 @@ HAVFRYS is evaluated on real production repositories facing breaking ecosystem m
 
 ## Demo
 
-![HAVFRYS Terminal Execution & Micro-Branching Demo](docs/assets/frost_demo_video.gif)
+![HAVFRYS Terminal Execution & Micro-Branching Demo](docs/assets/havfrys_demo_video.gif)
 
 ---
 

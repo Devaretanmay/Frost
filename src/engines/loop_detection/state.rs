@@ -1,10 +1,10 @@
-use crate::engines::loop_detection::config::{FrostConfig, Sensitivity};
+use crate::engines::loop_detection::config::{HavfrysConfig, Sensitivity};
 use crate::engines::loop_detection::engine::RuleEngine;
 use crate::engines::loop_detection::history::HistoryTracker;
 
 pub const ERROR_BUF_SIZE: usize = 1024;
 
-pub struct FrostState {
+pub struct HavfrysState {
     pub sensitivity: Sensitivity,
     pub max_repeats: usize,
     pub ignore_args: bool,
@@ -16,9 +16,9 @@ pub struct FrostState {
     pub warning_buffer: Vec<u8>,
 }
 
-impl FrostState {
+impl HavfrysState {
     pub fn new(yaml_str: &str) -> Result<Self, String> {
-        let config = FrostConfig::from_yaml(yaml_str)?;
+        let config = HavfrysConfig::from_yaml(yaml_str)?;
 
         let engine = RuleEngine::new(config.rules)?;
         let history = HistoryTracker::new();

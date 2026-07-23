@@ -25,7 +25,7 @@ pub enum RuleConfig {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct FrostConfig {
+pub struct HavfrysConfig {
     #[serde(default = "default_sensitivity")]
     pub sensitivity: Sensitivity,
     #[serde(default = "default_max_repeats")]
@@ -38,7 +38,7 @@ pub struct FrostConfig {
     pub rules: Vec<RuleConfig>,
 }
 
-impl FrostConfig {
+impl HavfrysConfig {
     pub fn from_yaml(yaml_str: &str) -> Result<Self, String> {
         serde_yml::from_str(yaml_str).map_err(|e| format!("YAML parsing error: {}", e))
     }

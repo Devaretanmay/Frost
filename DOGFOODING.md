@@ -89,6 +89,6 @@ HAVFRYS is evaluated not on artificial micro-benchmarks or synthetic tests, but 
 
 #### #10. HAVFRYS (Self-Dogfooding)
 - **Repository**: `Devaretanmay/HAVFRYS`
-- **Task**: Modernize HAVFRYS itself — remove legacy V1 global session state, consolidate `v2` package directory into top-level `frost`, build `havfrys doctor` diagnostics.
+- **Task**: Modernize HAVFRYS itself — remove legacy V1 global session state, consolidate `v2` package directory into top-level `havfrys`, build `havfrys doctor` diagnostics.
 - **Stress Tests**: Self-refactoring without regressing FastMCP server or Rust compression bindings.
 - **Outcome**: **468 / 468 Tests PASSED (416 Rust + 52 Python)**.
