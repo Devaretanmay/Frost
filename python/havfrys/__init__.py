@@ -8,7 +8,10 @@ Three core primitives:
 HAVFRYS automatically analyzes task complexity and deploys engineering machinery.
 """
 
+import sys
 from .core import havfrys, run, resume, inspect, HavfrysResult, FrostResult, frost
 
+sys.modules["frost"] = sys.modules[__name__]
+
 __all__ = ["havfrys", "run", "resume", "inspect", "HavfrysResult", "FrostResult", "frost"]
-__version__ = "0.2.2"
+__version__ = "0.2.4"

@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.2.3"
+VERSION = "0.2.4"
 
 CLIENT_PROVIDERS = [
     "1. Claude Code / Desktop",
@@ -36,7 +36,7 @@ CLIENT_PROVIDERS = [
 
 def get_havfrys_mcp_config() -> dict[str, Any]:
     """Return standard local MCP server configuration snippet."""
-    cmd_path = shutil.which("havfrys") or shutil.which("frost") or "havfrys"
+    cmd_path = shutil.which("havfrys") or str(Path(sys.executable).parent / "havfrys")
     return {
         "command": cmd_path,
         "args": ["serve"],
@@ -141,8 +141,29 @@ def install_vscode() -> tuple[bool, str]:
 
 def install_opencode() -> tuple[bool, str]:
     """Configure OpenCode to run local HAVFRYS MCP server."""
-    target_path = Path.home() / ".config" / "opencode" / "mcp.json"
-    return _update_mcp_json_file(target_path, "havfrys")
+    target_path = Path.home() / ".config" / "opencode" / "opencode.json"
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        config: dict[str, Any] = {
+            "$schema": "https://opencode.ai/config.json",
+        }
+        if target_path.exists():
+            try:
+                config = json.loads(target_path.read_text(encoding="utf-8"))
+            except Exception:
+                config = {"$schema": "https://opencode.ai/config.json"}
+
+        cmd_path = shutil.which("havfrys") or str(Path.home() / ".local" / "bin" / "havfrys")
+        mcp_dict = config.setdefault("mcp", {})
+        mcp_dict.pop("frost", None)
+        mcp_dict["havfrys"] = {
+            "type": "local",
+            "command": [cmd_path, "serve"],
+        }
+        target_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+        return True, str(target_path)
+    except Exception as e:
+        return False, str(e)
 
 
 def install_gemini() -> tuple[bool, str]:
@@ -335,6 +356,13 @@ def run_doctor() -> None:
         print(f"  [ok] Available ({docker_path})")
     else:
         print("  [-] Not installed (Optional, Level 0 Native active)")
+
+    # Toolchain check
+    print("\nToolchain:")
+    git_path = shutil.which("git")
+    cargo_path = shutil.which("cargo")
+    print(f"  [ok] Git: {git_path if git_path else 'not found'}")
+    print(f"  [ok] Cargo: {cargo_path if cargo_path else 'not found (Optional)'}")
 
     # Compression Engine
     print("\nCompression Engine:")

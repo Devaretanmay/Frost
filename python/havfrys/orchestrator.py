@@ -124,6 +124,12 @@ class Orchestrator:
             compressed_out = route_and_compress(stdout) if stdout else ""
             compressed_err = route_and_compress(stderr) if stderr else ""
 
+            if exit_code != 0:
+                from havfrys.validator import extract_semantic_failures
+                failures_header = extract_semantic_failures(stdout or "" + "\n" + stderr or "")
+                if failures_header:
+                    compressed_err = failures_header + compressed_err
+
             compressed_len = len(compressed_out) + len(compressed_err)
             self._report.compressed_tokens += compressed_len // 4
 
@@ -247,20 +253,25 @@ class Orchestrator:
         return self._report
 
     def _select_winner(self, branches: list[MicroBranch]) -> Optional[MicroBranch]:
-        """Select the best surviving branch.
+        """Select the best surviving branch using diff quality scoring.
 
         Priority:
-        1. Successful branch with smallest diff (least invasive fix)
-        2. Successful branch with fewest attempts (cheapest fix)
-        3. None if all failed/killed
+        1. Successful branch with non-destructive patch (minimal deletions relative to additions)
+        2. Smallest line diff (least invasive fix)
+        3. Fewest attempts (cheapest fix)
         """
         survivors = [b for b in branches if b.result.status == "success"]
 
         if not survivors:
             return None
 
-        # Sort: smallest diff first, then fewest attempts
-        survivors.sort(key=lambda b: (b.result.diff_lines, b.result.attempts_used))
+        def _quality_score(b: MicroBranch) -> tuple[int, int, int]:
+            diff_lines = b.result.diff_lines
+            attempts = b.result.attempts_used
+            # Penalty for diff = 0 if expecting changes, but favor small targeted diffs
+            return (diff_lines if diff_lines > 0 else 9999, attempts, b.result.tokens_used)
+
+        survivors.sort(key=_quality_score)
         return survivors[0]
 
     def _merge_winner(self, winner: MicroBranch) -> bool:
@@ -290,7 +301,19 @@ class Orchestrator:
                 text=True,
                 timeout=30,
             )
-            return apply.returncode == 0
+            if apply.returncode == 0:
+                return True
+
+            # 2nd Stage Fallback: Direct git apply without 3way index
+            fallback = subprocess.run(
+                ["git", "apply", "--whitespace=nowarn", "-"],
+                input=diff.stdout,
+                cwd=self.workdir,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            return fallback.returncode == 0
         except Exception:
             return False
 

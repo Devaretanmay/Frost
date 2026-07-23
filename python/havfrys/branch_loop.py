@@ -104,14 +104,15 @@ class BranchLoopDetector:
 
     def _check_no_diff(self) -> LoopVerdict:
         """Detect no repository state change across multiple attempts."""
-        if len(self._history) < self._stagnation_threshold:
+        threshold = min(2, self._stagnation_threshold)
+        if len(self._history) < threshold:
             return LoopVerdict()
 
-        recent = self._history[-self._stagnation_threshold:]
+        recent = self._history[-threshold:]
         if all(s.diff_lines == 0 for s in recent):
             return LoopVerdict(
                 should_kill=True,
-                reason=f"No repository state change after {self._stagnation_threshold} attempts",
+                reason=f"No repository state change after {len(recent)} attempts",
                 loop_type="no_diff",
             )
 

@@ -96,8 +96,11 @@ def run(goal: str, *, workdir: str = "") -> HavfrysResult:
             pass
 
     # 1. Context Resolution Layer
-    from havfrys.context import resolve_context, ContextType
+    from havfrys.context import resolve_context, ContextType, scaffold_greenfield_workspace
     ctx = resolve_context(resolved_workdir, goal)
+
+    if ctx.context_type == ContextType.EMPTY_WORKSPACE:
+        scaffold_greenfield_workspace(resolved_workdir, goal)
 
     # 2. Automatic Internal Risk & Sandbox Assessment
     requires_sandbox = "untrusted" in goal.lower() or ctx.is_docker or os.path.exists(os.path.join(resolved_workdir, ".havfrys_sandbox")) or os.path.exists(os.path.join(resolved_workdir, ".frost_sandbox"))

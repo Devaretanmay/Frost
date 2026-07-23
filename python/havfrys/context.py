@@ -92,3 +92,29 @@ def resolve_context(workdir: str, goal: str = "") -> EngineeringContext:
         files_count=files_count,
         summary=summary,
     )
+
+
+def scaffold_greenfield_workspace(workdir: str, goal: str) -> None:
+    """Scaffold baseline workspace file targets for greenfield tasks."""
+    workdir_abs = os.path.abspath(workdir or os.getcwd())
+    if not os.path.exists(workdir_abs):
+        os.makedirs(workdir_abs, exist_ok=True)
+
+    # Check if empty
+    existing = [f for f in os.listdir(workdir_abs) if not f.startswith(".")]
+    if existing:
+        return
+
+    goal_lower = goal.lower()
+    if any(w in goal_lower for w in ["rust", "cargo"]):
+        with open(os.path.join(workdir_abs, "main.rs"), "w", encoding="utf-8") as f:
+            f.write("fn main() {\n    println!(\"Hello from HAVFRYS\");\n}\n")
+    elif any(w in goal_lower for w in ["go", "golang"]):
+        with open(os.path.join(workdir_abs, "main.go"), "w", encoding="utf-8") as f:
+            f.write("package main\nimport \"fmt\"\nfunc main() {\n    fmt.Println(\"Hello from HAVFRYS\")\n}\n")
+    elif any(w in goal_lower for w in ["node", "express", "typescript", "ts", "javascript", "js"]):
+        with open(os.path.join(workdir_abs, "index.js"), "w", encoding="utf-8") as f:
+            f.write("// Scaffolded by HAVFRYS\nconsole.log('Hello from HAVFRYS');\n")
+    else:
+        with open(os.path.join(workdir_abs, "app.py"), "w", encoding="utf-8") as f:
+            f.write("# Scaffolded by HAVFRYS\n")

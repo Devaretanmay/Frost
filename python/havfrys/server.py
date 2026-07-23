@@ -72,6 +72,7 @@ def create_server() -> Any:
             "retries": result.retries,
             "cached": result.cached,
             "mode": result.mode,
+            "token_reduction_pct": result.token_reduction_pct,
         }
 
         if result.uncertainty_points > 0:
