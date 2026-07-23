@@ -17,7 +17,7 @@ def cmd_serve(args: argparse.Namespace) -> int:
 
 def cmd_init(args: argparse.Namespace) -> int:
     """Run local-first client installer wizard."""
-    run_init_wizard(choice=args.select)
+    run_init_wizard(choice=args.select, auto_all=args.all)
     return 0
 
 
@@ -47,7 +47,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     # havfrys init
     init_p = sub.add_parser("init", help="Configure local MCP client (Claude Code, Cursor, VS Code, etc.)")
-    init_p.add_argument("--select", type=int, default=None, help="Directly select client option [1-7]")
+    init_p.add_argument("--select", type=int, default=None, help="Directly select client option [1-9]")
+    init_p.add_argument("--all", "-a", action="store_true", help="Auto-configure all detected AI coding clients")
     init_p.set_defaults(func=cmd_init)
 
     # havfrys doctor

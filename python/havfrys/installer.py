@@ -43,101 +43,71 @@ def get_havfrys_mcp_config() -> dict[str, Any]:
     }
 
 
+def _is_valid_client_path(p: Path) -> bool:
+    """Return True if config file exists or parent directory exists (excluding Home directory)."""
+    if p.exists():
+        return True
+    parent = p.parent
+    if parent != Path.home() and parent.exists():
+        return True
+    return False
+
+
 def detect_installed_clients() -> list[tuple[str, Path]]:
     """Detect local AI coding agent clients installed on the system."""
     detected = []
 
-    # 1. Claude Code / Desktop
-    claude_paths = [
-        Path.home() / ".claude.json",
-        Path.home() / ".config" / "claude" / "config.json",
-        Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json",
-        Path.home() / "AppData" / "Roaming" / "Claude" / "claude_desktop_config.json",
+    providers: list[tuple[str, list[Path], Optional[str]]] = [
+        ("Claude Code", [
+            Path.home() / ".claude.json",
+            Path.home() / ".config" / "claude" / "config.json",
+            Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json",
+            Path.home() / "AppData" / "Roaming" / "Claude" / "claude_desktop_config.json",
+        ], "claude"),
+        ("Gemini CLI", [
+            Path.home() / ".gemini" / "mcp.json",
+            Path.home() / ".config" / "gemini" / "mcp.json",
+        ], "gemini"),
+        ("Cursor", [
+            Path.home() / ".cursor" / "mcp.json",
+            Path.home() / "Library" / "Application Support" / "Cursor" / "User" / "globalStorage" / "mcp.json",
+            Path.home() / ".config" / "Cursor" / "User" / "globalStorage" / "mcp.json",
+        ], "cursor"),
+        ("VS Code", [
+            Path.home() / ".vscode" / "mcp.json",
+            Path.home() / "Library" / "Application Support" / "Code" / "User" / "mcp.json",
+            Path.home() / ".config" / "Code" / "User" / "mcp.json",
+        ], "code"),
+        ("OpenCode", [
+            Path.home() / ".config" / "opencode" / "mcp.json",
+            Path.home() / ".opencode" / "mcp.json",
+        ], "opencode"),
+        ("Windsurf", [
+            Path.home() / ".codeium" / "windsurf" / "mcp_config.json",
+            Path.home() / ".windsurf" / "mcp_config.json",
+        ], "windsurf"),
+        ("Cline / Roo Code", [
+            Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json",
+            Path.home() / ".vscode" / "extensions" / "rooveterinaryinc.roo-cline" / "mcp.json",
+        ], None),
+        ("Continue", [
+            Path.home() / ".continue" / "config.json",
+        ], None),
+        ("Zed Editor", [
+            Path.home() / ".config" / "zed" / "settings.json",
+        ], "zed"),
     ]
-    for p in claude_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Claude Code", p))
-            break
 
-    # 2. Gemini CLI
-    gemini_paths = [
-        Path.home() / ".gemini" / "mcp.json",
-        Path.home() / ".config" / "gemini" / "mcp.json",
-    ]
-    for p in gemini_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Gemini CLI", p))
-            break
-
-    # 3. Cursor
-    cursor_paths = [
-        Path.home() / ".cursor" / "mcp.json",
-        Path.home() / "Library" / "Application Support" / "Cursor" / "User" / "globalStorage" / "mcp.json",
-        Path.home() / ".config" / "Cursor" / "User" / "globalStorage" / "mcp.json",
-    ]
-    for p in cursor_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Cursor", p))
-            break
-
-    # 4. VS Code
-    vscode_paths = [
-        Path.home() / ".vscode" / "mcp.json",
-        Path.home() / "Library" / "Application Support" / "Code" / "User" / "mcp.json",
-        Path.home() / ".config" / "Code" / "User" / "mcp.json",
-    ]
-    for p in vscode_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("VS Code", p))
-            break
-
-    # 5. OpenCode
-    opencode_paths = [
-        Path.home() / ".config" / "opencode" / "mcp.json",
-        Path.home() / ".opencode" / "mcp.json",
-    ]
-    for p in opencode_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("OpenCode", p))
-            break
-
-    # 6. Windsurf
-    windsurf_paths = [
-        Path.home() / ".codeium" / "windsurf" / "mcp_config.json",
-        Path.home() / ".windsurf" / "mcp_config.json",
-    ]
-    for p in windsurf_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Windsurf", p))
-            break
-
-    # 7. Cline / Roo Code
-    cline_paths = [
-        Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json",
-        Path.home() / ".vscode" / "extensions" / "rooveterinaryinc.roo-cline" / "mcp.json",
-    ]
-    for p in cline_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Cline / Roo Code", p))
-            break
-
-    # 8. Continue
-    continue_paths = [
-        Path.home() / ".continue" / "config.json",
-    ]
-    for p in continue_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Continue", p))
-            break
-
-    # 9. Zed Editor
-    zed_paths = [
-        Path.home() / ".config" / "zed" / "settings.json",
-    ]
-    for p in zed_paths:
-        if p.exists() or p.parent.exists():
-            detected.append(("Zed Editor", p))
-            break
+    for name, paths, bin_name in providers:
+        found_path = None
+        for p in paths:
+            if _is_valid_client_path(p):
+                found_path = p
+                break
+        if not found_path and bin_name and shutil.which(bin_name):
+            found_path = paths[0]
+        if found_path:
+            detected.append((name, found_path))
 
     return detected
 
@@ -227,35 +197,55 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
         return False, str(e)
 
 
-def run_init_wizard(choice: Optional[int] = None) -> None:
-    """Run interactive or non-interactive havfrys init wizard with client auto-detection."""
+def run_init_wizard(choice: Optional[int] = None, auto_all: bool = False) -> None:
+    """Run interactive or non-interactive havfrys init wizard with dynamic client auto-detection."""
     print("Welcome to HAVFRYS by HAVFRYS Labs.\n")
 
     detected = detect_installed_clients()
+
+    installers = {
+        "Claude Code": install_claude_code,
+        "Gemini CLI": install_gemini,
+        "OpenCode": install_opencode,
+        "Cursor": install_cursor,
+        "VS Code": install_vscode,
+        "Windsurf": install_windsurf,
+        "Cline / Roo Code": install_cline,
+        "Continue": install_continue,
+        "Zed Editor": install_zed,
+    }
+
+    if auto_all:
+        print(f"Auto-configuring all {len(detected)} detected AI coding client(s)...\n")
+        for name, path in detected:
+            if name in installers:
+                ok, res_path = installers[name]()
+                _print_result(name, ok, res_path)
+        return
+
     if detected and choice is None:
-        client_name, path = detected[0]
-        print(f"Detected {client_name}.\n")
+        print(f"Detected {len(detected)} installed AI coding client(s):\n")
+        for i, (client_name, path) in enumerate(detected, 1):
+            print(f"  {i}. {client_name} ({path})")
+        print()
         try:
-            ans = input(f"Configure {client_name} automatically? [Y/n] ").strip().lower()
-            if ans in ("", "y", "yes"):
-                if client_name == "Claude Code":
-                    choice = 1
-                elif client_name == "Gemini CLI":
-                    choice = 2
-                elif client_name == "OpenCode":
-                    choice = 3
-                elif client_name == "Cursor":
-                    choice = 4
-                elif client_name == "VS Code":
-                    choice = 5
-                elif client_name == "Windsurf":
-                    choice = 6
-                elif client_name == "Cline / Roo Code":
-                    choice = 7
-                elif client_name == "Continue":
-                    choice = 8
-                elif client_name == "Zed Editor":
-                    choice = 9
+            ans = input("Configure all detected clients automatically? [Y/n/select] ").strip().lower()
+            if ans in ("", "y", "yes", "a", "all"):
+                for client_name, _ in detected:
+                    if client_name in installers:
+                        ok, path = installers[client_name]()
+                        _print_result(client_name, ok, path)
+                return
+            elif ans.isdigit():
+                idx = int(ans) - 1
+                if 0 <= idx < len(detected):
+                    c_name = detected[idx][0]
+                    client_map = {
+                        "Claude Code": 1, "Gemini CLI": 2, "OpenCode": 3,
+                        "Cursor": 4, "VS Code": 5, "Windsurf": 6,
+                        "Cline / Roo Code": 7, "Continue": 8, "Zed Editor": 9
+                    }
+                    choice = client_map.get(c_name)
         except (KeyboardInterrupt, EOFError):
             choice = 11
 
