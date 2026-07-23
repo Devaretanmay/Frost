@@ -27,10 +27,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Devaretanmay/Frost"
-Repository = "https://github.com/Devaretanmay/Frost"
-Documentation = "https://github.com/Devaretanmay/Frost#readme"
-Issues = "https://github.com/Devaretanmay/Frost/issues"
+Homepage = "https://github.com/Devaretanmay/HAVFRYS"
+Repository = "https://github.com/Devaretanmay/HAVFRYS"
+Documentation = "https://github.com/Devaretanmay/HAVFRYS#readme"
+Issues = "https://github.com/Devaretanmay/HAVFRYS/issues"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]

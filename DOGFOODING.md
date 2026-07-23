@@ -17,7 +17,7 @@ HAVFRYS is evaluated not on artificial micro-benchmarks or synthetic tests, but 
 | **Phase 3** | 7 | **Saleor** (`saleor/saleor`) | Hard | Upgrade backend & GraphQL stack | Large production GraphQL API | **Spec Verified** | Python 3.14 Django ORM |
 | **Phase 3** | 8 | **Open WebUI** (`open-webui`) | Medium | Modernize Python backend | Fast-moving OSS AI application | **Spec Verified** | FastAPI Backend Validated |
 | **Phase 3** | 9 | **Paperless-ngx** (`paperless-ngx`) | Hard | Modernize entire stack | Multi-service architecture, OCR, Docker | **Spec Verified** | Docker Compose Pipeline |
-| **Phase 4** | 10 | **HAVFRYS** (`Devaretanmay/Frost`) | Hard | Self-dogfooding & refactoring | Architectural evolution & Rust bindings | **DONE** | **468/468 Passed (416 Rust + 52 Py)** |
+| **Phase 4** | 10 | **HAVFRYS** (`Devaretanmay/HAVFRYS`) | Hard | Self-dogfooding & refactoring | Architectural evolution & Rust bindings | **DONE** | **468/468 Passed (416 Rust + 52 Py)** |
 
 ---
 
@@ -88,7 +88,7 @@ HAVFRYS is evaluated not on artificial micro-benchmarks or synthetic tests, but 
 ### Phase 4 — Self-Dogfooding
 
 #### #10. HAVFRYS (Self-Dogfooding)
-- **Repository**: `Devaretanmay/Frost`
+- **Repository**: `Devaretanmay/HAVFRYS`
 - **Task**: Modernize HAVFRYS itself — remove legacy V1 global session state, consolidate `v2` package directory into top-level `frost`, build `havfrys doctor` diagnostics.
 - **Stress Tests**: Self-refactoring without regressing FastMCP server or Rust compression bindings.
 - **Outcome**: **468 / 468 Tests PASSED (416 Rust + 52 Python)**.

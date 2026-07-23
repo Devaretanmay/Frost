@@ -6,8 +6,8 @@ Thank you for your interest in contributing to HAVFRYS! We welcome contributions
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/Devaretanmay/Frost.git
-   cd Frost
+   git clone https://github.com/Devaretanmay/HAVFRYS.git
+   cd HAVFRYS
    ```
 
 2. **Create a Virtual Environment**:
