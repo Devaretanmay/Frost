@@ -218,6 +218,7 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
                 config = {}
 
         servers = config.setdefault("mcpServers", {})
+        servers.pop("frost", None)
         servers[server_name] = get_havfrys_mcp_config()
 
         file_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
