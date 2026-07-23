@@ -8,78 +8,44 @@ from typing import Any, Callable, Optional, Tuple
 
 
 class NativeBackend:
-    """Level 0 Native execution backend.
-    
-    Executes commands directly on the host machine using lightweight subprocesses.
-    Zero container spinup overhead (~10ms execution latency).
-    """
+    """Level 0 Native execution backend."""
 
-    def __init__(
-        self,
-        image: str = "",
-        resource_args: Optional[list[str]] = None,
-        network_args: Optional[list[str]] = None,
-        timeout: int = 3600,
-        workdir: str = "",
-    ):
+    def __init__(self, image: str = "", resource_args=None, network_args=None, timeout: int = 3600, workdir: str = ""):
         self.image = image or "native"
         self.timeout = timeout
         self.workdir = workdir or os.getcwd()
         self._container = "native"
 
     def start(self) -> str:
-        """Start native backend (no-op, instant)."""
         return "native"
 
     def stop(self) -> None:
-        """Stop native backend (no-op)."""
         pass
 
     def commit(self, repository: str, tag: str) -> None:
-        """Checkpoint commit (no-op for native)."""
         pass
 
-    def execute_cli(
-        self,
-        command: str,
-        cwd: Optional[str] = None,
-        env: Optional[dict] = None,
-    ) -> Tuple[int, str, str]:
-        """Execute command natively on host machine."""
+    def execute_cli(self, command: str, cwd: Optional[str] = None, env: Optional[dict] = None) -> Tuple[int, str, str]:
         effective_cwd = cwd or self.workdir
         merged_env = {**os.environ, **(env or {})}
-
         try:
             proc = subprocess.run(
-                command,
-                shell=True,
-                cwd=effective_cwd,
-                env=merged_env,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout,
+                command, shell=True, cwd=effective_cwd, env=merged_env, capture_output=True, text=True, timeout=self.timeout
             )
             return proc.returncode, proc.stdout, proc.stderr
         except subprocess.TimeoutExpired as e:
-            stdout = e.stdout.decode("utf-8") if isinstance(e.stdout, bytes) else (e.stdout or "")
-            stderr = e.stderr.decode("utf-8") if isinstance(e.stderr, bytes) else (e.stderr or "")
-            return 124, stdout, f"Command timed out after {self.timeout}s\n{stderr}"
+            return 124, (e.stdout or "").decode() if isinstance(e.stdout, bytes) else (e.stdout or ""), f"Command timed out after {self.timeout}s"
         except Exception as e:
             return 1, "", str(e)
 
     def execute_callable(self, target: Callable[[], Any]) -> Tuple[int, str, str]:
-        """Execute a Python callable in-process."""
-        buf_out = io.StringIO()
-        buf_err = io.StringIO()
+        buf_out, buf_err = io.StringIO(), io.StringIO()
         old_out, old_err = sys.stdout, sys.stderr
         sys.stdout, sys.stderr = buf_out, buf_err
         try:
             res = target()
             sys.stdout, sys.stderr = old_out, old_err
-            out_str = buf_out.getvalue()
-            if res is not None and not out_str:
-                out_str = str(res)
-            return 0, out_str, buf_err.getvalue()
+            return 0, buf_out.getvalue() or str(res or ""), buf_err.getvalue()
         except Exception as e:
             sys.stdout, sys.stderr = old_out, old_err
             return 1, buf_out.getvalue(), str(e)

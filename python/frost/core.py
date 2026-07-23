@@ -217,7 +217,14 @@ def _resolve_command(task: str, workdir: str) -> str:
     if _is_shell_command(task_str):
         return task_str
 
-    # Natural Language Engineering Task Resolution
+    task_lower = task_str.lower()
+    is_analysis = any(w in task_lower for w in ["analyze", "analysis", "explain", "architecture", "survey", "document", "overview"])
+
+    if is_analysis:
+        if os.path.exists(os.path.join(workdir, "src")):
+            return "git status 2>/dev/null; find src python -maxdepth 3 2>/dev/null || find . -maxdepth 2"
+        return "git status 2>/dev/null; find . -maxdepth 2 -not -path '*/.*'"
+
     test_cmds = _detect_test_commands(workdir)
     build_cmds = _detect_build_commands(workdir)
 
