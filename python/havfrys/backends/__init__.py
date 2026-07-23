@@ -18,10 +18,10 @@ def get_backend(
     Level 3 (Docker Container): Selected when an explicit container image is provided,
     or when HAVFRYS_BACKEND=docker is set in environment.
     """
-    backend_env = os.environ.get("HAVFRYS_BACKEND") or os.environ.get("FROST_BACKEND", "")
+    backend_env = os.environ.get("HAVFRYS_BACKEND", "")
     use_docker = force_docker or bool(image) or backend_env.lower() == "docker"
     if use_docker:
-        resolved_image = image or os.environ.get("HAVFRYS_IMAGE") or os.environ.get("FROST_IMAGE", "python:3.12")
+        resolved_image = image or os.environ.get("HAVFRYS_IMAGE", "python:3.12")
         return DockerBackend(
             image=resolved_image,
             resource_args=[],

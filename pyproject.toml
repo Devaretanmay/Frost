@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "havfrys"
-version = "0.2.4"
+version = "0.3.0"
 description = "Autonomous engineering execution platform for AI agents — execution resilience, micro-branching, and log compression by HAVFRYS Labs."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,4 +39,3 @@ module-name = "havfrys._core"
 
 [project.scripts]
 havfrys = "havfrys.cli:main"
-frost = "havfrys.cli:main"

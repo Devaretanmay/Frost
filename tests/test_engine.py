@@ -169,12 +169,11 @@ class TestEngineeringMemory:
 class TestCoreLinearPath:
 
     def setup_method(self):
-        for cache_name in (".havfrys_cache.json", ".frost_cache.json"):
-            if os.path.exists(cache_name):
-                try:
-                    os.remove(cache_name)
-                except OSError:
-                    pass
+        if os.path.exists(".havfrys_cache.json"):
+            try:
+                os.remove(".havfrys_cache.json")
+            except OSError:
+                pass
 
     def test_simple_command_succeeds_linearly(self):
         result = run("echo hello havfrys engine")
@@ -201,3 +200,22 @@ class TestCoreLinearPath:
         result = run("bash -c 'exit 1'")
         assert result.status == "failed"
         assert result.retries >= 1
+
+    def test_readonly_workdir_does_not_crash(self):
+        result = run("echo print hello world", workdir="/")
+        assert result.status == "success"
+
+    def test_print_hello_world_returns_output(self):
+        result = run("print hello world")
+        assert result.status == "success"
+        assert "hello world" in result.output
+
+    def test_math_eval_returns_output(self):
+        result = run("12345 * 6789")
+        assert result.status == "success"
+        assert "83810205" in result.output
+
+    def test_destructive_operation_is_blocked(self):
+        result = run("delete all files in /")
+        assert result.status == "failed"
+        assert "blocked by HAVFRYS safety guard" in result.output

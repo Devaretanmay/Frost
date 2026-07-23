@@ -10,50 +10,63 @@ import os
 
 
 def _detect_build_commands(workdir: str) -> list[str]:
-    """Detect available build commands from project files."""
+    """Detect available build commands dynamically across project manifests."""
     commands = []
 
-    if os.path.exists(os.path.join(workdir, "Cargo.toml")):
-        commands.append("cargo check")
-    if os.path.exists(os.path.join(workdir, "package.json")):
-        commands.append("npm run build --if-present")
-    if os.path.exists(os.path.join(workdir, "pyproject.toml")):
-        commands.append("python -m py_compile setup.py 2>/dev/null || true")
-    if os.path.exists(os.path.join(workdir, "Makefile")):
-        commands.append("make -n build 2>/dev/null && make build || true")
-    if os.path.exists(os.path.join(workdir, "go.mod")):
-        commands.append("go build ./...")
+    manifest_map = [
+        ("Cargo.toml", "cargo check"),
+        ("package.json", "npm run build --if-present"),
+        ("pyproject.toml", "python -m py_compile setup.py 2>/dev/null || true"),
+        ("Makefile", "make -n build 2>/dev/null && make build || make"),
+        ("go.mod", "go build ./..."),
+        ("pom.xml", "mvn compile -q 2>/dev/null || true"),
+        ("build.gradle", "./gradlew build 2>/dev/null || gradle build 2>/dev/null || true"),
+        ("CMakeLists.txt", "cmake -B build && cmake --build build"),
+    ]
+
+    for manifest, cmd in manifest_map:
+        if os.path.exists(os.path.join(workdir, manifest)):
+            commands.append(cmd)
 
     return commands
 
 
 def _detect_test_commands(workdir: str) -> list[str]:
-    """Detect available test commands from project files."""
+    """Detect available test commands dynamically across project manifests."""
     commands = []
 
-    if os.path.exists(os.path.join(workdir, "Cargo.toml")):
-        commands.append("cargo test")
-    if os.path.exists(os.path.join(workdir, "package.json")):
-        commands.append("npm test --if-present")
-    if os.path.exists(os.path.join(workdir, "pyproject.toml")) or os.path.exists(os.path.join(workdir, "pytest.ini")):
-        commands.append("python -m pytest --tb=short -q")
-    if os.path.exists(os.path.join(workdir, "go.mod")):
-        commands.append("go test ./...")
+    test_map = [
+        ("Cargo.toml", "cargo test"),
+        ("package.json", "npm test --if-present"),
+        ("pyproject.toml", "python -m pytest --tb=short -q"),
+        ("pytest.ini", "python -m pytest --tb=short -q"),
+        ("setup.cfg", "python -m pytest --tb=short -q"),
+        ("go.mod", "go test ./..."),
+        ("pom.xml", "mvn test -q"),
+        ("build.gradle", "./gradlew test 2>/dev/null || gradle test"),
+    ]
+
+    for manifest, cmd in test_map:
+        if os.path.exists(os.path.join(workdir, manifest)) and cmd not in commands:
+            commands.append(cmd)
 
     return commands
 
 
 def extract_semantic_failures(output: str) -> str:
-    """Extract top failing test/build lines to pin at the head of compressed log output."""
+    """Extract top failing test/build lines dynamically to pin at the head of compressed log output."""
     if not output:
         return ""
 
+    max_lines = int(os.environ.get("HAVFRYS_FAILURE_LINES", "5"))
     failing_lines = []
+    keywords = ["FAILED ", "FAIL ", "error[E", "ModuleNotFoundError:", "ImportError:", "SyntaxError:", "ERR!", "FATAL", "Exception:"]
+
     for line in output.splitlines():
         line_clean = line.strip()
-        if any(keyword in line_clean for keyword in ["FAILED ", "FAIL ", "error[E", "ModuleNotFoundError:", "ImportError:", "SyntaxError:"]):
+        if any(kw in line_clean for kw in keywords):
             failing_lines.append(line_clean)
-            if len(failing_lines) >= 5:
+            if len(failing_lines) >= max_lines:
                 break
 
     if not failing_lines:

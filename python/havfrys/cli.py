@@ -29,12 +29,19 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
 def cmd_run(args: argparse.Namespace) -> int:
     """Execute a command via HAVFRYS runtime."""
+    from havfrys.ui import symbol_bullet, symbol_ok, symbol_err, BOLD, GREEN, RED, CYAN, DIM, RESET
     cmd = " ".join(args.command)
-    res = havfrys(cmd, image=args.image, workdir=args.workdir, timeout=args.timeout)
+    res = havfrys(cmd, workdir=args.workdir)
     out = res.output or res.error or ""
     if out:
         print(out.strip())
-    print(f"[{res.status}] Completed in {res.execution_time_s:.2f}s ({res.retries} attempts)")
+    
+    icon = symbol_ok() if res.status in ("success", "cached") else symbol_err()
+    mode_text = f"Cached Hit" if res.cached else f"{res.mode.title()} Path"
+    print(f"\n{icon} {BOLD}HAVFRYS Task:{RESET} \"{cmd}\"")
+    print(f"  {DIM}├─ Status: {res.status.upper()}{RESET}")
+    print(f"  {DIM}├─ Mode: {mode_text}{RESET}")
+    print(f"  {DIM}└─ Latency: {res.execution_time_s:.2f}s ({res.retries + 1} attempt(s)){RESET}\n")
     return 0 if res.status in ("success", "cached") else 1
 
 
@@ -65,9 +72,7 @@ def build_parser() -> argparse.ArgumentParser:
     # havfrys run <command>
     run_p = sub.add_parser("run", help="Execute a task via HAVFRYS")
     run_p.add_argument("command", nargs="+", help="Command or task to execute")
-    run_p.add_argument("--image", default="", help="Docker image override (Level 3)")
     run_p.add_argument("--workdir", default="", help="Working directory override")
-    run_p.add_argument("--timeout", type=int, default=3600, help="Timeout in seconds")
     run_p.set_defaults(func=cmd_run)
 
     return parser

@@ -70,9 +70,8 @@ class TestInstallerWizard:
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         run_init_wizard(choice=1)
         out = capsys.readouterr().out
-        assert "Installing HAVFRYS MCP for Claude Code" in out
-        assert "Runtime installed." in out
-        assert "MCP server configured." in out
+        assert "Claude Code" in out
+        assert "Configured at" in out
 
     def test_run_init_wizard_custom_json(self, capsys):
         run_init_wizard(choice=10)

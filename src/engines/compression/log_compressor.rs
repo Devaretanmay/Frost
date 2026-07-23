@@ -221,7 +221,15 @@ impl FormatDetector {
     }
 
     fn detect(&self, lines: &[&str]) -> LogFormat {
-        let sample: Vec<&str> = lines.iter().take(100).copied().collect();
+        let n = lines.len();
+        let sample: Vec<&str> = if n <= 100 {
+            lines.to_vec()
+        } else {
+            let mut s = Vec::with_capacity(100);
+            s.extend_from_slice(&lines[..50]);
+            s.extend_from_slice(&lines[n - 50..]);
+            s
+        };
         let mut best: Option<(LogFormat, usize)> = None;
         for (fmt, ac) in &self.matchers {
             let mut score = 0;

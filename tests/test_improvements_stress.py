@@ -98,5 +98,24 @@ def test_6_zero_diff_stagnation_early_termination():
 def test_8_doctor_diagnostics_does_not_crash(capsys):
     run_doctor()
     captured = capsys.readouterr()
-    assert "HAVFRYS Diagnostics" in captured.out
-    assert "Toolchain:" in captured.out
+    assert "Runtime Diagnostics" in captured.out
+    assert "Toolchain" in captured.out
+
+
+def test_dynamic_docker_image_inference(tmp_path):
+    from havfrys.core import _infer_docker_image
+
+    rust_dir = tmp_path / "rust_proj"
+    rust_dir.mkdir()
+    (rust_dir / "Cargo.toml").write_text("[package]\nname='foo'")
+    assert _infer_docker_image(str(rust_dir)) == "rust:latest"
+
+    node_dir = tmp_path / "node_proj"
+    node_dir.mkdir()
+    (node_dir / "package.json").write_text("{}")
+    assert _infer_docker_image(str(node_dir)) == "node:latest"
+
+    go_dir = tmp_path / "go_proj"
+    go_dir.mkdir()
+    (go_dir / "go.mod").write_text("module foo")
+    assert _infer_docker_image(str(go_dir)) == "golang:latest"

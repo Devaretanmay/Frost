@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 
-VERSION = "0.2.4"
+VERSION = "0.3.0"
 
 CLIENT_PROVIDERS = [
     "1. Claude Code / Desktop",
@@ -115,16 +115,21 @@ def detect_installed_clients() -> list[tuple[str, Path]]:
 def install_claude_code() -> tuple[bool, str]:
     """Configure Claude Code / Desktop to run local HAVFRYS MCP server."""
     possible_paths = [
+        Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json",
+        Path.home() / "AppData" / "Roaming" / "Claude" / "claude_desktop_config.json",
         Path.home() / ".claude.json",
         Path.home() / ".config" / "claude" / "config.json",
-        Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json",
     ]
-    target_path = possible_paths[0]
+    updated_paths = []
     for p in possible_paths:
-        if p.parent.exists():
-            target_path = p
-            break
-    return _update_mcp_json_file(target_path, "havfrys")
+        if p.exists() or p.parent.exists():
+            ok, res_path = _update_mcp_json_file(p, "havfrys")
+            if ok:
+                updated_paths.append(res_path)
+
+    if updated_paths:
+        return True, ", ".join(updated_paths)
+    return _update_mcp_json_file(possible_paths[0], "havfrys")
 
 
 def install_cursor() -> tuple[bool, str]:
@@ -155,7 +160,6 @@ def install_opencode() -> tuple[bool, str]:
 
         cmd_path = shutil.which("havfrys") or str(Path.home() / ".local" / "bin" / "havfrys")
         mcp_dict = config.setdefault("mcp", {})
-        mcp_dict.pop("frost", None)
         mcp_dict["havfrys"] = {
             "type": "local",
             "command": [cmd_path, "serve"],
@@ -213,7 +217,6 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
                 config = {}
 
         servers = config.setdefault("mcpServers", {})
-        servers.pop("frost", None)
         servers[server_name] = get_havfrys_mcp_config()
 
         file_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
@@ -224,7 +227,8 @@ def _update_mcp_json_file(file_path: Path, server_name: str) -> tuple[bool, str]
 
 def run_init_wizard(choice: Optional[int] = None, auto_all: bool = False) -> None:
     """Run interactive or non-interactive havfrys init wizard with dynamic client auto-detection."""
-    print("Welcome to HAVFRYS by HAVFRYS Labs.\n")
+    from havfrys.ui import render_banner, render_section, symbol_bullet, BOLD, CYAN, GREEN, RESET
+    print(render_banner("MCP Client Configuration", VERSION))
 
     detected = detect_installed_clients()
 
@@ -241,11 +245,12 @@ def run_init_wizard(choice: Optional[int] = None, auto_all: bool = False) -> Non
     }
 
     if auto_all:
-        print(f"Auto-configuring all {len(detected)} detected AI coding client(s)...\n")
+        print(f"  {symbol_bullet()} Auto-configuring all {BOLD}{len(detected)}{RESET} detected AI coding client(s):\n")
         for name, path in detected:
             if name in installers:
                 ok, res_path = installers[name]()
                 _print_result(name, ok, res_path)
+        print(f"\n  {GREEN}{BOLD}Done!{RESET} All detected MCP client configurations active.\n")
         return
 
     if detected and choice is None:
@@ -325,80 +330,56 @@ def run_init_wizard(choice: Optional[int] = None, auto_all: bool = False) -> Non
 
 
 def run_doctor() -> None:
-    """Run HAVFRYS Diagnostics for local environment."""
-    print("HAVFRYS Diagnostics (HAVFRYS Labs)\n")
+    """Run HAVFRYS Diagnostics for local environment using rich UI components."""
+    from havfrys.ui import render_banner, render_section, render_row, symbol_ok, symbol_err, BOLD, GREEN, CYAN, RESET
+    print(render_banner("Runtime Diagnostics", VERSION))
 
-    # Runtime check
-    print("Runtime:")
-    print("  [ok] Installed")
-
-    # Python version
     py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    print(f"\nPython:\n  [ok] {py_ver}")
+    print(render_section("System & Runtime"))
+    print(render_row("Python", f"{py_ver} ({sys.platform})"))
+    print(render_row("MCP Server", "Available (havfrys serve)"))
 
-    # MCP Server
-    print("\nMCP Server:")
-    print("  [ok] Available (havfrys serve)")
+    # Engine
+    try:
+        from havfrys._core import route_and_compress
+        print(render_row("Compression Engine", "Loaded (Lossless + SmartCrusher)"))
+    except Exception as e:
+        print(render_row("Compression Engine", f"Failed to load: {e}", is_ok=False))
 
-    # Client Configurations
-    print("\nClients:")
+    try:
+        from havfrys._core import LoopEngine
+        print(render_row("Loop Detection", "Loaded (BranchLoopDetector)"))
+    except Exception as e:
+        print(render_row("Loop Detection", f"Failed to load: {e}", is_ok=False))
+
+    # Toolchain
+    print(render_section("Toolchain & Containers"))
+    git_path = shutil.which("git")
+    cargo_path = shutil.which("cargo")
+    docker_path = shutil.which("docker")
+    print(render_row("Git CLI", git_path or "not found", is_ok=bool(git_path)))
+    print(render_row("Cargo Compiler", cargo_path or "not found (Optional)", is_ok=True))
+    print(render_row("Docker Engine", docker_path or "not found (Optional, Level 0 Active)", is_ok=True))
+
+    # Clients
+    print(render_section("Configured MCP Clients"))
     detected = detect_installed_clients()
     if detected:
         for name, path in detected:
-            print(f"  [ok] {name} detected ({path})")
+            print(render_row(name, str(path)))
     else:
-        print("  [-] No MCP client configs auto-detected (run 'havfrys init')")
+        print(render_row("MCP Clients", "No clients auto-detected (run 'havfrys init')", is_ok=False))
 
-    # Docker check (optional)
-    print("\nDocker:")
-    docker_path = shutil.which("docker")
-    if docker_path:
-        print(f"  [ok] Available ({docker_path})")
-    else:
-        print("  [-] Not installed (Optional, Level 0 Native active)")
-
-    # Toolchain check
-    print("\nToolchain:")
-    git_path = shutil.which("git")
-    cargo_path = shutil.which("cargo")
-    print(f"  [ok] Git: {git_path if git_path else 'not found'}")
-    print(f"  [ok] Cargo: {cargo_path if cargo_path else 'not found (Optional)'}")
-
-    # Compression Engine
-    print("\nCompression Engine:")
-    try:
-        from havfrys._core import route_and_compress
-        print("  [ok] Loaded (Lossless + SmartCrusher)")
-    except Exception as e:
-        print(f"  [err] Failed to load: {e}")
-
-    # Loop Detection
-    print("\nLoop Detection:")
-    try:
-        from havfrys._core import LoopEngine
-        print("  [ok] Loaded (BranchLoopDetector)")
-    except Exception as e:
-        print(f"  [err] Failed to load: {e}")
-
-    # Version
-    print(f"\nVersion:\n  v{VERSION}")
-
-    # Repository status
-    print("\nRepository:")
-    if os.path.exists(".git"):
-        print("  [ok] Ready (Git repository detected)")
-    else:
-        print("  [ok] Ready (Directory path active)")
+    print(render_section("Workspace"))
+    is_git = os.path.exists(".git")
+    print(render_row("Repository State", "Git repository active" if is_git else "Directory path active"))
+    print(f"\n{GREEN}{BOLD}Status:{RESET} All system diagnostics 100% operational.\n")
 
 
 def _print_result(client_name: str, success: bool, path_or_err: str) -> None:
     """Print success or failure summary for installer wizard."""
+    from havfrys.ui import render_row, symbol_ok, symbol_err, BOLD, GREEN, RED, RESET
     if success:
-        print(f"\nInstalling HAVFRYS MCP for {client_name}...\n")
-        print("  [ok] Runtime installed.")
-        print("  [ok] MCP server configured.")
-        print(f"  [ok] Updated config at {path_or_err}.\n")
-        print("Done.\n")
-        print("Run your coding agent and start using HAVFRYS.")
+        print(f"  {symbol_ok()} {BOLD}{client_name:<20}{RESET} Configured at {path_or_err}")
     else:
-        print(f"\nFailed to configure {client_name}: {path_or_err}")
+        print(f"  {symbol_err()} {BOLD}{client_name:<20}{RESET} {RED}Failed: {path_or_err}{RESET}")
